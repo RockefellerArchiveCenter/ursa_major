@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'discovery.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'dbname',
+        'NAME': 'bagrepo',
         'USER': 'username',
         'PASSWORD': 'password',
         'HOST': 'localhost',
