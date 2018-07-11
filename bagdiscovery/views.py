@@ -29,8 +29,6 @@ def receiveBag(request):
 
 
 def getBag(request):
-    print('YOOOOOOOOOOOOOOO')
-    print(request.GET.get('endpoint'))
     response = requests.get(request.GET.get('endpoint'))
     json_bag = str(response.json())
     storeBag(json_bag)
