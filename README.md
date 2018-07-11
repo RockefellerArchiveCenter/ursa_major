@@ -1,2 +1,2 @@
 # bag-repository
-mySQL database to hold bag data to be used at a later time.  
+Microservice used to discover and store bags.
