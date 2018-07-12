@@ -35,7 +35,7 @@ def getBag(request):
 
 
 def storeBag(json_bag):
-        db = MySQLdb.connect(user='username', db='bagrepo', passwd='password', host='localhost')
+        db = MySQLdb.connect(user='urmn', db='bag', passwd='aurora', host='db')
         cursor = db.cursor()
         print('INSERT INTO bag VALUES (' + " '" + uuid.uuid4().__str__() + " ' , '[" + json_bag + "]' , "
               + "'" + "Hi" + "' ," + "'" + time.strftime('%Y-%m-%d %H:%M:%S') + "'")

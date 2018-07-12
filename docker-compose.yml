@@ -1,11 +1,35 @@
 version: '3'
 
 services:
+
+  db:
+    image: "mysql:5.7"
+    ports:
+      - "3306:3306"
+    networks:
+      - aurora-net
+    environment:
+      - MYSQL_ROOT_PASSWORD=mysecretpassword
+      - MYSQL_DATABASE=bag
+      - MYSQL_USER=urmn
+      - MYSQL_PASSWORD=aurora
+
+
+
   web:
     build: .
-    entrypoint: /code/entrypoint.sh
+    command: python3 manage.py runserver 0.0.0.0:8000
+    networks:
+      - aurora-net
     volumes:
       - .:/code
     ports:
-     - "8000:8000"
+      - "8000:8000"
+#    tty: true
+#    stdin_open: true
+    depends_on:
+      - db
 
+
+networks:
+  aurora-net:
