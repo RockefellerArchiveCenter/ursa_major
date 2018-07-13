@@ -1,47 +1,34 @@
-import requests
+from django.http import HttpResponse, request
 from django.shortcuts import render
+from django.views import View
+from django.views.generic import TemplateView
 
-# Create your views here.
+from .library import receiveBag, getBag
 
-import MySQLdb
-import json
-from django.http import HttpResponse
-from django.shortcuts import render
-import uuid
-import time
+#
+# class index(View):
+#
+#     def get(self, request):
+#         getBag(request)
+#         return render(request, 'discovery/index.html')
+#
+#     def post(self, request):
+#         receiveBag(request)
+#         return render(request, 'discovery/index.html')
 
 
-def index(request):
-    if request.method == 'POST':
+class index(TemplateView):
+
+    template_name = "discovery/index.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    # def get(self, request):
+    #     getBag(request)
+    #     return render(request, 'discovery/index.html')
+
+    def post(self, request):
         receiveBag(request)
-    elif request.GET.get('endpoint'):
-        getBag(request)
-    return render(request, 'discovery/index.html')
-
-
-def receiveBag(request):
-    print("I have received a POST request!")
-    json_data = json.loads(request.body.decode(encoding='UTF-8'))
-    json_bag = json.dumps(json_data)
-    storeBag(json_bag)
-
-    return 'Data is in the database!'
-
-
-def getBag(request):
-    response = requests.get(request.GET.get('endpoint'))
-    json_bag = str(response.json())
-    storeBag(json_bag)
-
-
-def storeBag(json_bag):
-        db = MySQLdb.connect(user='urmn', db='bag', passwd='aurora', host='db')
-        cursor = db.cursor()
-        print('INSERT INTO bag VALUES (' + " '" + uuid.uuid4().__str__() + " ' , '[" + json_bag + "]' , "
-              + "'" + "Hi" + "' ," + "'" + time.strftime('%Y-%m-%d %H:%M:%S') + "'")
-
-        cursor.execute('INSERT INTO bag VALUES (' + " '" + uuid.uuid4().__str__() + " ' , '[" + json_bag + "]' , "
-                       + "'" + time.strftime('%m-%d-%Y') + "' ," + "'" + time.strftime('%I:%M:%S %p') + "')")
-
-        db.commit()
-        db.close()
+        return render(request, 'discovery/index.html')
