@@ -4,4 +4,4 @@ FROM python:3.5
  WORKDIR /code
  ADD . /code/
  ADD requirements.txt /code/
- RUN pip install -r requirements.txt
+ RUN pip install --upgrade pip && pip install -r requirements.txt

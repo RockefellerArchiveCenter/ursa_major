@@ -78,11 +78,11 @@ WSGI_APPLICATION = 'discovery.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'bag',
-        'USER': 'urmn',
-        'PASSWORD': 'aurora',
-        'HOST': 'db',
-        'PORT': '3306',
+        'NAME': 'mysql',
+        'USER': 'root',
+        'PASSWORD': 'example',
+        'HOST': 'capricorn_db',
+        'PORT': 3306,
     }
 }
 
