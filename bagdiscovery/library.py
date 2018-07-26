@@ -43,9 +43,6 @@ def getBags():
     cursor.execute("SELECT * FROM bag.bag")
     result = cursor.fetchall()
 
-    for row in enumerate(result):
-        print(row)
-
     db.commit()
     db.close()
 
