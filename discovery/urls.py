@@ -15,9 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from bagdiscovery.views import bagView
+
 
 urlpatterns = [
     path('bagdiscovery/', include('bagdiscovery.urls')),
+    path('bag/', bagView.as_view(), name="bagView"),
     path('admin/', admin.site.urls),
-
 ]
