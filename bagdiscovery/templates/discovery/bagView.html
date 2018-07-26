@@ -7,9 +7,12 @@
 <body>
 
 <p>
-
-    {{rows}}
-
+    <div id="bag_list">
+{% for i in rows %}
+    <div class="list">
+        {{ i }}
+    </div>
+{% endfor %}
 </p>
 
 
