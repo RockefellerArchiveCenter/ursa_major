@@ -8,26 +8,10 @@ from .forms import URLForm
 
 from .library import receiveBag , storeNewBag
 
-#
-# class index(View):
-#
-#     def get(self, request):
-#         getBag(request)
-#         return render(request, 'discovery/index.html')
-#
-#     def post(self, request):
-#         receiveBag(request)
-#         return render(request, 'discovery/index.html')
-
 
 class index(TemplateView):
 
     template_name = "discovery/index.html"
-
-    #
-    # def post(self, request):
-    #     receiveBag(request)
-    #     return render(request, 'discovery/index.html')
 
     def post(self, request):
         form = URLForm(request.POST)
