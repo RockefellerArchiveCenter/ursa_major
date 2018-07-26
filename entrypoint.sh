@@ -3,7 +3,7 @@
 ./wait-for-it.sh db:5432 -- echo "Creating config file"
 
 if [ ! -f manage.py ]; then
-  cd discovery
+  cd bag-repository
 fi
 
 if [ ! -f discovery/config.py ]; then
