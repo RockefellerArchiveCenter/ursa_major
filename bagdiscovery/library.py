@@ -14,12 +14,6 @@ def receiveBag(request):
     return 'Data is in the database!'
 
 
-def getBag(request):
-    response = requests.get(request.GET.get('endpoint'))
-    json_bag = str(response.json())
-    storeBag(json_bag)
-
-
 def storeBag(json_bag):
         db = MySQLdb.connect(user='urmn', db='bag', passwd='aurora', host='db')
         cursor = db.cursor()
@@ -31,3 +25,20 @@ def storeBag(json_bag):
 
         db.commit()
         db.close()
+
+
+def storeNewBag(json_bag):
+    db = MySQLdb.connect(user='urmn', db='bag', passwd='aurora', host='db')
+    cursor = db.cursor()
+    cleanBag = json_bag
+    print(cleanBag)
+    updatedBag = '"' + cleanBag + '"'
+    print(updatedBag)
+    print('INSERT INTO bag VALUES (' + " '" + uuid.uuid4().__str__() + " ' , " " " + updatedBag + " " " , "
+          + "'" + time.strftime('%m-%d-%Y') + "' ," + "'" + time.strftime('%I:%M:%S %p') + "')")
+
+    cursor.execute('INSERT INTO bag VALUES (' + " '" + uuid.uuid4().__str__() + " ' , " " " + updatedBag + " " " , "
+                   + "'" + time.strftime('%m-%d-%Y') + "' ," + "'" + time.strftime('%I:%M:%S %p') + "')")
+
+    db.commit()
+    db.close()

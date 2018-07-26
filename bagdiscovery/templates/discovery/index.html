@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Discovery</title>
-    <p> This is the Discovery page! POST your bags to this endpoint to have them enter the beautiful bag repository! Alternatively, enter an endpoint to have that bag stored. </p>
+    <p> This is the Discovery page! POST your bags to this endpoint to have them enter the beautiful bag repository!
+        Alternatively, enter an endpoint to have that bag stored. </p>
 
-    <form action="#" method="GET">
+    <form name="URLForm" action="#" method="post">
         Endpoint URL :<br>
-            <input type="text" name="endpoint">
+            <input type="text" id="endpoint" name="endpoint">
         <br>
-            <input type="submit" class="button" name="urlButton" value="Store">
+             {% csrf_token %}
+            <input type="submit" class="button" name="urlButton" value="Submit">
     </form>
 
       <pre class style="float:right; margin-top: -70px;">
