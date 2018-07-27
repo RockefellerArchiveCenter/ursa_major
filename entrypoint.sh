@@ -6,8 +6,8 @@ if [ ! -f manage.py ]; then
   cd bag-repository
 fi
 
-if [ ! -f discovery/config.py ]; then
-    cp discovery/config.py.example discovery/config.py
+if [ ! -f ursa_major/config.py ]; then
+    cp ursa_major/config.py.example ursa_major/config.py
 fi
 
 echo "Apply database migrations"

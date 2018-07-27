@@ -2,12 +2,12 @@ version: '3'
 
 services:
 
-  capricorn_db:
+  ursa_major_db:
     image: mysql:5.7
     environment:
       MYSQL_ROOT_PASSWORD: example
 
-  capricorn_web:
+  ursa_major_web:
     build: .
     entrypoint: /code/entrypoint.sh
     volumes:
@@ -15,4 +15,4 @@ services:
     ports:
       - "8005:8005"
     depends_on:
-      - capricorn_db
+      - ursa_major_db

@@ -8,7 +8,7 @@ from .library import receiveBag, storeNewBag, getBags
 
 class index(TemplateView):
 
-    template_name = "discovery/index.html"
+    template_name = "bagdiscovery/index.html"
 
     def post(self, request):
         form = URLForm(request.POST)
@@ -21,13 +21,13 @@ class index(TemplateView):
         else:
             receiveBag(request)
 
-        return render(request, 'discovery/index.html', {'rows': rows})
+        return render(request, template_name, {'rows': rows})
 
 
 class bagView(TemplateView):
 
-    template_name = "discovery/bagView.html"
+    template_name = "bagdiscovery/bagView.html"
 
     def get(self, request, *args, **kwargs):
         rows = getBags()
-        return render(request, 'discovery/bagView.html', {'rows': rows})
+        return render(request, template_name, {'rows': rows})
