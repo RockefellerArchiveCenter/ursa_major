@@ -2,6 +2,7 @@ import MySQLdb
 import json
 import uuid
 import time
+from .models import Bag
 
 
 def receiveBag(request):
@@ -14,24 +15,26 @@ def receiveBag(request):
 
 
 def storeBag(json_bag):
-        db = MySQLdb.connect(user='urmn', db='bag', passwd='aurora', host='db')
-        cursor = db.cursor()
-        cursor.execute('INSERT INTO bag VALUES (' + " '" + uuid.uuid4().__str__() + " ' , '[" + json_bag + "]' , "
-                       + "'" + time.strftime('%m-%d-%Y') + "' ," + "'" + time.strftime('%I:%M:%S %p') + "')")
-        db.commit()
-        db.close()
+        bag = Bag()
+        bag.time = time.strftime('%I:%M:%S %p')
+        bag.date = time.strftime('%m-%d-%Y')
+        bag.bag = json_bag
+        bag.id = uuid.uuid4().__str__()
+
+        bag.save()
 
 
 def storeNewBag(json_bag):
-    db = MySQLdb.connect(user='urmn', db='bag', passwd='aurora', host='db')
-    cursor = db.cursor()
     cleanBag = json_bag
     updatedBag = '"' + cleanBag + '"'
-    cursor.execute('INSERT INTO bag VALUES (' + " '" + uuid.uuid4().__str__() + " ' , " " " + updatedBag + " " " , "
-                   + "'" + time.strftime('%m-%d-%Y') + "' ," + "'" + time.strftime('%I:%M:%S %p') + "')")
 
-    db.commit()
-    db.close()
+    bag = Bag()
+    bag.time = time.strftime('%I:%M:%S %p')
+    bag.date = time.strftime('%m-%d-%Y')
+    bag.bag = updatedBag
+    bag.id = uuid.uuid4().__str__()
+
+    bag.save()
 
 
 def getBags():
@@ -39,9 +42,9 @@ def getBags():
     cursor = db.cursor()
     cursor.execute("SELECT * FROM bag.bag")
     result = cursor.fetchall()
-    print(result)
 
     db.commit()
     db.close()
 
     return result
+

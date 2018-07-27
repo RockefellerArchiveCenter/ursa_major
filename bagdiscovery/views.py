@@ -17,7 +17,6 @@ class index(TemplateView):
             response = urllib.request.urlopen(myform)
             data = str(json.loads(response.read().decode(encoding='UTF-8')))
             storeNewBag(data)
-            rows = getBags()
         else:
             receiveBag(request)
 
