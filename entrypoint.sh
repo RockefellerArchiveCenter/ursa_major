@@ -3,7 +3,7 @@
 ./wait-for-it.sh db:5432 -- echo "Creating config file"
 
 if [ ! -f manage.py ]; then
-  cd bag-repository
+  cd ursa_major
 fi
 
 if [ ! -f ursa_major/config.py ]; then
