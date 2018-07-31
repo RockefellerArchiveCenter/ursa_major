@@ -15,13 +15,13 @@ def receiveBag(request):
 
 
 def storeBag(json_bag):
-        bag = Bag()
-        bag.time = time.strftime('%I:%M:%S %p')
-        bag.date = time.strftime('%m-%d-%Y')
-        bag.bag = json_bag
-        bag.id = uuid.uuid4().__str__()
+    bag = Bag()
+    bag.time = time.strftime('%I:%M:%S %p')
+    bag.date = time.strftime('%m-%d-%Y')
+    bag.bag = json_bag
+    bag.id = uuid.uuid4().__str__()
 
-        bag.save()
+    bag.save()
 
 
 def storeNewBag(json_bag):
