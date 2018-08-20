@@ -38,9 +38,9 @@ def storeNewBag(json_bag):
 
 
 def getBags():
-    db = MySQLdb.connect(user='urmn', db='bag', passwd='aurora', host='db')
+    db = MySQLdb.connect(user='root', db='mysql', passwd='example', host='ursa_major_db')
     cursor = db.cursor()
-    cursor.execute("SELECT * FROM bag.bag")
+    cursor.execute("SELECT * FROM mysql.bag")
     result = cursor.fetchall()
 
     db.commit()
