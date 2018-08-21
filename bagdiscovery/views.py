@@ -11,6 +11,7 @@ class index(TemplateView):
     template_name = "bagdiscovery/index.html"
 
     def post(self, request):
+        rows = getBags()
         form = URLForm(request.POST)
         if request.method == 'POST' and form.is_valid():
             myform = form.cleaned_data['endpoint']
@@ -20,13 +21,12 @@ class index(TemplateView):
         else:
             receiveBag(request)
 
-        return render(request, template_name, {'rows': rows})
+        return render(request, template_name="bagdiscovery/index.html")
 
 
 class bagView(TemplateView):
 
-    template_name = "bagdiscovery/bagView.html"
-
     def get(self, request, *args, **kwargs):
+        template_name = "bagdiscovery/bagView.html"
         rows = getBags()
         return render(request, template_name, {'rows': rows})

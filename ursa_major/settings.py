@@ -83,6 +83,15 @@ DATABASES = {
         'HOST': 'ursa_major_db',
         'PORT': 3306,
     }
+    #
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'mysql',
+    #     'USER': 'root',
+    #     'PASSWORD': 'example',
+    #     'HOST': 'ursa_major_db',
+    #     'PORT': 3306,
+    # }
 }
 
 # Password validation
