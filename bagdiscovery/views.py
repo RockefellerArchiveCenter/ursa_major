@@ -35,6 +35,7 @@ class index(TemplateView):
             # z = bytes([r])
 
             zf = zipfile.ZipFile(io.BytesIO(r), "r")
+            print(zf)
             print(zf.namelist())
 
             for fileinfo in zf.infolist():
