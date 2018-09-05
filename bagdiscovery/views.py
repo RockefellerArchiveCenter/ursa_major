@@ -28,19 +28,18 @@ class index(TemplateView):
         # This is from a POST request
 
         else:
+            print("-------------------------")
             r = request.body
-            print(type(r))
-            print(r)
-
-            # z = bytes([r])
 
             zf = zipfile.ZipFile(io.BytesIO(r), "r")
-            print(zf)
-            print(zf.namelist())
 
-            for fileinfo in zf.infolist():
-                print(zf.namelist())
-                print(zf.read(fileinfo).decode('utf-8'))
+            for x in zf.namelist():
+                print(x)
+                print(zf.read(x).decode('utf-8'))
+                print("-------------------------")
+
+            # for fileinfo in zf.infolist():
+            #     print(zf.read(fileinfo).decode('utf-8'))
 
             # receiveBag(request)
 
