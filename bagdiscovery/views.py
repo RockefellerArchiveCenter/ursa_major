@@ -36,7 +36,7 @@ class index(TemplateView):
             for x in zf.namelist():
                 print(x)
                 print(zf.read(x).decode('utf-8'))
-                print("-------------------------")
+                print("----------------------")
 
             # for fileinfo in zf.infolist():
             #     print(zf.read(fileinfo).decode('utf-8'))
