@@ -1,3 +1,6 @@
+import io
+import zipfile
+
 import MySQLdb
 import json
 import uuid
@@ -48,3 +51,20 @@ def getBags():
 
     return result
 
+
+def writeFileToTemp(request):
+    r = request.body
+    print(type(r))
+    f = open('test', 'wb')
+    f.write(r)
+    f.close()
+    return f
+
+
+def createZip(r):
+    zf = zipfile.ZipFile(io.BytesIO(r), "r")
+
+    for x in zf.namelist():
+        print(x)
+        print(zf.read(x).decode('utf-8'))
+        print("----------------------")

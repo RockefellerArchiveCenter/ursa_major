@@ -2,12 +2,14 @@ import io
 import json
 import urllib.request
 import zipfile
+from pathlib import Path
+import os
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from .forms import URLForm, ZIPForm
-from .library import receiveBag, storeNewBag, getBags
+from .library import *
 import gzip
-
+import magic
 
 class index(TemplateView):
 
@@ -17,6 +19,13 @@ class index(TemplateView):
         rows = getBags()
         form = URLForm(request.POST)
 
+        # Write byte stream to file on local system
+        writeFileToTemp(request)
+
+        # Check that file for its type even if it doesnt have an extension
+        fileType = magic.from_file('test', mime=True)
+        print("The file type was " + fileType)
+
         # This is the post from the form on the page
 
         if request.method == 'POST' and form.is_valid():
@@ -25,22 +34,14 @@ class index(TemplateView):
             data = str(json.loads(response.read().decode(encoding='UTF-8')))
             storeNewBag(data)
 
-        # This is from a POST request
+        # This is from a POST request. Use fileType to determine if file is a zip.
+
+        elif fileType == "application/zip":
+            # creates a zipfile object from the bytesteam and prints it out in the console
+            createZip(request.body)
 
         else:
-            print("-------------------------")
-            r = request.body
-
-            zf = zipfile.ZipFile(io.BytesIO(r), "r")
-
-            for x in zf.namelist():
-                print(x)
-                print(zf.read(x).decode('utf-8'))
-                print("----------------------")
-
-            # for fileinfo in zf.infolist():
-            #     print(zf.read(fileinfo).decode('utf-8'))
-
+            print("This was not a zip and should be worked on")
             # receiveBag(request)
 
         return render(request, template_name="bagdiscovery/index.html")
