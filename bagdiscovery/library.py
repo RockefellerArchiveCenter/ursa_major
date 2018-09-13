@@ -1,11 +1,14 @@
 import io
+import os
 import zipfile
+from pathlib import Path
 
 import MySQLdb
 import json
 import uuid
 import time
 from .models import Bag
+import magic
 
 
 def receiveBag(request):
@@ -51,20 +54,38 @@ def getBags():
 
     return result
 
-
+# writes zip file to directory called storage
 def writeFileToTemp(request):
-    r = request.body
-    print(type(r))
-    f = open('test', 'wb')
-    f.write(r)
-    f.close()
-    return f
-
+    # r = request.body
+    # print(type(r))
+    #
+    # f = open('landing/testss', 'wb')
+    # f.write(r)
+    # f.close()
+    # return f
+    return "cool"
 
 def createZip(r):
     zf = zipfile.ZipFile(io.BytesIO(r), "r")
 
     for x in zf.namelist():
-        print(x)
-        print(zf.read(x).decode('utf-8'))
-        print("----------------------")
+            print("----------------------")
+            print(x)
+            if "zip" or "tar" not in x:
+                print(zf.read(x).decode('utf-8'))
+                print("----------------------")
+            else:
+                print("This is a compressed file and its insides are gummy")
+                print("----------------------")
+
+
+def checkForBag():
+    my_file = Path("landing/testss")
+    if my_file.exists():
+        print("File is right here bby")
+        moveBag()
+    return "the file has been moved!"
+
+
+def moveBag():
+    os.rename("landing/testss", "storage/testss")

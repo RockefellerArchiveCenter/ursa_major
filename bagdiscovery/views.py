@@ -1,15 +1,10 @@
-import io
-import json
 import urllib.request
-import zipfile
-from pathlib import Path
-import os
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from .forms import URLForm, ZIPForm
+from .forms import URLForm
 from .library import *
-import gzip
 import magic
+
 
 class index(TemplateView):
 
@@ -21,9 +16,10 @@ class index(TemplateView):
 
         # Write byte stream to file on local system
         writeFileToTemp(request)
+        print(checkForBag())
 
         # Check that file for its type even if it doesnt have an extension
-        fileType = magic.from_file('test', mime=True)
+        fileType = magic.from_file('storage/testss', mime=True)
         print("The file type was " + fileType)
 
         # This is the post from the form on the page
@@ -37,7 +33,8 @@ class index(TemplateView):
         # This is from a POST request. Use fileType to determine if file is a zip.
 
         elif fileType == "application/zip":
-            # creates a zipfile object from the bytesteam and prints it out in the console
+
+            # creates a zipfile object from the bytestream and prints it out in the console
             createZip(request.body)
 
         else:
