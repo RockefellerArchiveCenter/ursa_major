@@ -19,6 +19,12 @@ or, if you wish to remove all local data:
 
       `docker-compose down -v`
 
+
+## Usage
+
+![Ursa Major diagram](ursa_major.png)
+
+
 ## License
 
 This code is released under an [MIT License](LICENSE).
