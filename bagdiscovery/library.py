@@ -2,11 +2,8 @@ import io
 import os
 import zipfile
 from pathlib import Path
-
 import MySQLdb
 import json
-import uuid
-import time
 from .models import Bag
 import magic
 
@@ -22,23 +19,8 @@ def receiveBag(request):
 
 def storeBag(json_bag):
     bag = Bag()
-    bag.time = time.strftime('%I:%M:%S %p')
-    bag.date = time.strftime('%m-%d-%Y')
-    bag.bag = json_bag
-    bag.id = uuid.uuid4().__str__()
-
-    bag.save()
-
-
-def storeNewBag(json_bag):
-    cleanBag = json_bag
-    updatedBag = '"' + cleanBag + '"'
-
-    bag = Bag()
-    bag.time = time.strftime('%I:%M:%S %p')
-    bag.date = time.strftime('%m-%d-%Y')
-    bag.bag = updatedBag
-    bag.id = uuid.uuid4().__str__()
+    bag.accessiondata = json_bag
+    bag.urlpath = "example"
 
     bag.save()
 
@@ -54,16 +36,27 @@ def getBags():
 
     return result
 
+
+def searchForBag():
+    db = MySQLdb.connect(user='root', db='mysql', passwd='example', host='ursa_major_db')
+    cursor = db.cursor()
+    cursor.execute("SELECT urlpath FROM mysql.bag")
+    result = cursor.fetchall()
+
+    db.commit()
+    db.close()
+
+    return result
+
 # writes zip file to directory called storage
 def writeFileToTemp(request):
-    # r = request.body
-    # print(type(r))
-    #
-    # f = open('landing/testss', 'wb')
-    # f.write(r)
-    # f.close()
-    # return f
-    return "cool"
+    r = request.body
+    print(type(r))
+
+    f = open('landing/testss', 'wb')
+    f.write(r)
+    f.close()
+    return f
 
 def createZip(r):
     zf = zipfile.ZipFile(io.BytesIO(r), "r")
@@ -78,14 +71,17 @@ def createZip(r):
                 print("This is a compressed file and its insides are gummy")
                 print("----------------------")
 
-
 def checkForBag():
     my_file = Path("landing/testss")
     if my_file.exists():
         print("File is right here bby")
         moveBag()
+        path = (os.path.dirname(os.path.abspath("storage/testss")))
+        print(path)
     return "the file has been moved!"
 
 
 def moveBag():
     os.rename("landing/testss", "storage/testss")
+
+
