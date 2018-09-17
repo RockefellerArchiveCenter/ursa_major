@@ -11,25 +11,19 @@ class index(TemplateView):
     template_name = "bagdiscovery/index.html"
 
     def post(self, request):
-        # Write byte stream to file on local system
-        # writeFileToTemp(request)
 
-        print(checkForBag())
-
-        # Check that file for its type even if it doesnt have an extension (Currently checks static file)
-        fileType = magic.from_file('storage/testss', mime=True)
-        print("The file type was " + fileType)
         # This is the post from the form on the page
         if request.method == 'POST':
-            receiveBag(request)
-            print(searchForBag())
-        # This is from a POST request. Use fileType to determine if file is a zip.
-        elif fileType == "application/zip":
-            # creates a zipfile object from the bytestream and prints it out in the console
-            createZip(request.body)
+
+            print(parseJSON(request))
+            nameOfBag = parseJSON(request)
+
+            if (checkForBag(nameOfBag)) == 'true':
+                moveBag(nameOfBag)
+                storeBag(request, nameOfBag)
+
         else:
-            print("This was not a zip and should be worked on")
-            # receiveBag(request)
+            print("This was not a POST")
 
         return render(request, template_name="bagdiscovery/index.html")
 
