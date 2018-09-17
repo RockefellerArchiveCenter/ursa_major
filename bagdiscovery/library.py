@@ -3,6 +3,8 @@ from pathlib import Path
 import MySQLdb
 import json
 from .models import Bag
+import requests
+
 
 
 def storeBag(request, nameOfBag):
@@ -46,3 +48,28 @@ def parseJSON(request):
 
 def moveBag(nameOfBag):
     os.rename("landing/" + nameOfBag, "storage/" + nameOfBag)
+
+
+def getAccessionData():
+    db = MySQLdb.connect(user='root', db='mysql', passwd='example', host='ursa_major_db')
+    cursor = db.cursor()
+    cursor.execute("SELECT accessiondata FROM mysql.bag WHERE bagName = 'test.zip'")
+    result = cursor.fetchall()
+
+    db.commit()
+    db.close()
+
+    return result
+
+
+def fornaxPass(accessiondata):
+    # defining the Fornax-endpoint
+    API_ENDPOINT = ""
+
+    # data to be sent to api
+    data = {'accessiondata': accessiondata}
+
+    # sending post request and saving response as response object
+    r = requests.post(url=API_ENDPOINT, data=data)
+
+    return r
