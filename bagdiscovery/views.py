@@ -15,20 +15,23 @@ class index(TemplateView):
         if request.method == 'POST':
 
             # receive POST, parse for name
-            print(parseJSON(request))
-            nameOfBag = parseJSON(request)
+            print("recieved POST")
+            parseJSON(request)
+            print("Bag has been stored")
+            # nameOfBag = parseJSON(request)
 
-            # check if bag with same name is in landing directory,
-            if (checkForBag(nameOfBag)) == 'true':
-                # if true move to storage directory
-                moveBag(nameOfBag)
-                # Then store name, accession data, and path in database.
-                storeBag(request, nameOfBag)
-
-                # Get accession data and POST to fornax. Need to move this from the view.
-                print(getAccessionData())
-                accessiondata = getAccessionData()
-                fornaxPass(accessiondata)
+            # # check if bag with same name is in landing directory,
+            # if (checkForBag(nameOfBag)) == 'true':
+            #     # if true move to storage directory
+            #     moveBag(nameOfBag)
+            #     # Then store name, accession data, and path in database.
+            #     storeBag(request, nameOfBag)
+            #     print("Bag has been stored")
+            #
+            #     # Get accession data and POST to fornax. Need to move this from the view. Here for development.
+            #     # print(getAccessionData())
+            #     # accessiondata = getAccessionData()
+            #     # fornaxPass(accessiondata)
 
         else:
             print("This was not a POST")
