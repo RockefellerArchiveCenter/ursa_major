@@ -1,12 +1,19 @@
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 
 
-class Bag(models.Model):
-    id, models.CharField(max_length=255, primary_key=True, serialize=False)
-    bagName = models.CharField(max_length=255, primary_key=True)
-    urlpath = models.CharField(max_length=255, blank=True, null=True)
-    accessiondata = models.CharField(max_length=40000, blank=True, null=True)
+class Accession(models.Model):
+    archivesspace_identifier = models.CharField(max_length=255, null=True, blank=True)
+    data = JSONField(null=True, blank=True)
+    created = models.DateTimeField(auto_now=True)
+    last_modified = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        managed = True
-        db_table = 'bag'
+
+class Bag(models.Model):
+    bag_identifier = models.CharField(max_length=255)
+    bag_path = models.CharField(max_length=255, null=True, blank=True)
+    archivesspace_identifier = models.CharField(max_length=255, null=True, blank=True)
+    accession = models.ForeignKey(Accession, on_delete=models.CASCADE)
+    data = JSONField(null=True, blank=True)
+    created = models.DateTimeField(auto_now=True)
+    last_modified = models.DateTimeField(auto_now_add=True)
