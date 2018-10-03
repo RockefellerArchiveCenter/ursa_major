@@ -16,22 +16,8 @@ class index(TemplateView):
 
             # receive POST, parse for name
             print("recieved POST")
-            parseJSON(request)
-            print("Bag has been stored")
-            # nameOfBag = parseJSON(request)
-
-            # # check if bag with same name is in landing directory,
-            # if (checkForBag(nameOfBag)) == 'true':
-            #     # if true move to storage directory
-            #     moveBag(nameOfBag)
-            #     # Then store name, accession data, and path in database.
-            #     storeBag(request, nameOfBag)
-            #     print("Bag has been stored")
-            #
-            #     # Get accession data and POST to fornax. Need to move this from the view. Here for development.
-            #     # print(getAccessionData())
-            #     # accessiondata = getAccessionData()
-            #     # fornaxPass(accessiondata)
+            parsejson(request)
+            print("Bag store process has finished")
 
         else:
             print("This was not a POST")
@@ -43,5 +29,5 @@ class bagView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         template_name = "bagdiscovery/bagView.html"
-        rows = getBags()
+        rows = getbags()
         return render(request, template_name, {'rows': rows})
