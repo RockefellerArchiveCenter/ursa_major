@@ -19,7 +19,7 @@ from bagdiscovery.views import bagView
 
 
 urlpatterns = [
-    path('bagdiscovery/', include('bagdiscovery.urls')),
+    path('ursamajor/', include('bagdiscovery.urls')),
     path('bag/', bagView.as_view(), name="bagView"),
     path('admin/', admin.site.urls),
 ]
