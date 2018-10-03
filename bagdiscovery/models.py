@@ -10,9 +10,10 @@ class Accession(models.Model):
 
 
 class Bag(models.Model):
-    bag_identifier = models.CharField(max_length=255)
+    bag_identifier = models.CharField(max_length=255, unique=True)
     bag_path = models.CharField(max_length=255, null=True, blank=True)
     archivesspace_identifier = models.CharField(max_length=255, null=True, blank=True)
+    archivesspace_parent_identifier = models.CharField(max_length=255, null=True, blank=True)
     accession = models.ForeignKey(Accession, on_delete=models.CASCADE)
     data = JSONField(null=True, blank=True)
     created = models.DateTimeField(auto_now=True)
