@@ -20,7 +20,7 @@ def storebag(request, nameofbag):
 
 
 def getbags():
-    db = MySQLdb.connect(user='root', db='mysql', passwd='example', host='ursa_major_db')
+    db = MySQLdb.connect(user='root', db='mysql', passwd='example', host='ursa-major-db')
     cursor = db.cursor()
     cursor.execute("SELECT * FROM mysql.bag")
     result = cursor.fetchall()
@@ -58,7 +58,7 @@ def movebag(nameofbag):
 
 
 def getaccessiondata(nameofbag):
-    db = MySQLdb.connect(user='root', db='mysql', passwd='example', host='ursa_major_db')
+    db = MySQLdb.connect(user='root', db='mysql', passwd='example', host='ursa-major-db')
     cursor = db.cursor()
     cursor.execute("SELECT accessiondata FROM mysql.bag WHERE bagName = '" + nameofbag + ".zip'")
     result = cursor.fetchall()

@@ -1,7 +1,7 @@
 import urllib.request
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from .forms import URLForm
+# from .forms import URLForm
 from .library import *
 import magic
 
