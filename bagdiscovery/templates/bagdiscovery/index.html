@@ -2,19 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Bag Discovery</title>
-    <p> This is the Bag Discovery page! POST your bags to this endpoint to have them enter the beautiful bag repository!
-        Alternatively, enter an endpoint to have that bag stored. </p>
+    <title>Ursa Major</title>
+    <p> This is the Bag Store! POST your accession data to this endpoint with the bags in the landing directory
+        to have them enter the bag repository.
+    </p>
 
-    <form name="URLForm" action="#" method="post">
-        Endpoint URL :<br>
-            <input type="text" id="endpoint" name="endpoint">
-        <br>
-             {% csrf_token %}
-            <input type="submit" class="button" name="urlButton" value="Submit">
-    </form>
-
-      <pre class style="float:right; margin-top: -70px;">
+      <pre class style="float:right;">
                 /  \.-"""-./  \
                 \  _ -   - _  /
                  | _ o   o _ |
@@ -23,15 +16,7 @@
                      `---`
     </pre>
 
-    <p>
-
-        {{rows}}
-
-    </p>
-
-
 </head>
 <body>
-
 </body>
 </html>
