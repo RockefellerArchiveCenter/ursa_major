@@ -22,7 +22,7 @@ from bagdiscovery.models import Bag
 
 router = routers.DefaultRouter()
 router.register(r'bags', BagViewSet, 'bag')
-router.register(r'accessions', AccessionViewSet, 'accession')
+router.register(r'ursamajor', AccessionViewSet, 'accession')
 
 
 urlpatterns = [
