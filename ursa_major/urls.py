@@ -21,8 +21,8 @@ from bagdiscovery.views import AccessionViewSet, BagViewSet
 from bagdiscovery.models import Bag
 
 router = routers.DefaultRouter()
-router.register(r'bags', BagViewSet)
-router.register(r'accessions', AccessionViewSet)
+router.register(r'bags', BagViewSet, 'bag')
+router.register(r'accessions', AccessionViewSet, 'accession')
 
 
 urlpatterns = [

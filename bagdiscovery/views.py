@@ -25,7 +25,7 @@ class AccessionViewSet(viewsets.ModelViewSet):
     Update an existing accession, identified by a primary key.
     """
     model = Accession
-    queryset = Accession.objects.all()
+    queryset = Accession.objects.all().order_by('-created')
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -37,7 +37,6 @@ class AccessionViewSet(viewsets.ModelViewSet):
             data=request.data
         )
         for transfer in request.data['transfers']:
-            # get data from Aurora?
             transfer = Bag.objects.create(
                 bag_identifier=transfer['identifier'],
                 accession=accession,
@@ -61,9 +60,15 @@ class BagViewSet(viewsets.ModelViewSet):
     Update an existing bag, identified by a primary key.
     """
     model = Bag
-    queryset = Bag.objects.all()
 
     def get_serializer_class(self):
         if self.action == 'list':
             return BagListSerializer
         return BagSerializer
+
+    def get_queryset(self):
+        queryset = Bag.objects.all().order_by('-created')
+        bag_identifier = self.request.GET.get('id')
+        if bag_identifier:
+            queryset = queryset.filter(bag_identifier=bag_identifier)
+        return queryset
