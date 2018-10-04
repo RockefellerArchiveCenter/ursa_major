@@ -20,11 +20,11 @@ class BagSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Bag
-        fields = ('url', 'bag_identifier', 'archivesspace_identifier', 'accession', 'data', 'created', 'last_modified')
+        fields = ('url', 'bag_identifier', 'archivesspace_identifier', 'archivesspace_parent_identifier', 'accession', 'data', 'created', 'last_modified')
 
 
 class BagListSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Bag
-        fields = ('url', 'bag_identifier', 'archivesspace_identifier', 'accession', 'created', 'last_modified')
+        fields = ('url', 'bag_identifier', 'archivesspace_identifier', 'archivesspace_parent_identifier', 'accession', 'created', 'last_modified')
