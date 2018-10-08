@@ -3,9 +3,7 @@ version: '3'
 services:
 
   ursa-major-db:
-    image: mysql:5.7
-    environment:
-      MYSQL_ROOT_PASSWORD: example
+    image: postgres:10.4
 
   ursa-major-web:
     build: .

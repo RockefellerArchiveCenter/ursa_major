@@ -14,12 +14,18 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
-from bagdiscovery.views import bagView
+from django.conf.urls import url
+from django.urls import include
+from rest_framework import routers
+from bagdiscovery.views import AccessionViewSet, BagViewSet
+from bagdiscovery.models import Bag
+
+router = routers.DefaultRouter()
+router.register(r'bags', BagViewSet, 'bag')
+router.register(r'ursamajor', AccessionViewSet, 'accession')
 
 
 urlpatterns = [
-    path('ursamajor/', include('bagdiscovery.urls')),
-    path('bag/', bagView.as_view(), name="bagView"),
-    path('admin/', admin.site.urls),
+    url(r'^', include(router.urls)),
+    url('admin/', admin.site.urls),
 ]
