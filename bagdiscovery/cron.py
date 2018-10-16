@@ -13,10 +13,9 @@ class bagStore(CronJobBase):
 
         for i in bag:
             name = i.bag_identifier + ".tar.gz"
-            print(name)
+            # print(name)
             if (checkforbag(name)) == 'true':
                 # if true move to storage directory
                 movebag(name)
-                # Then store name, accession data, and path in database.
-                # storebag(request, name)
-
+            else:
+                print('No bags are present')

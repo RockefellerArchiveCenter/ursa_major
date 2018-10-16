@@ -36,7 +36,7 @@ def checkforbag(nameofbag):
     if my_file.exists():
         return 'true'
     else:
-        print("File is not present")
+        print("Bag " + nameofbag + " is not present")
 
 
 def parsejson(request):
@@ -55,6 +55,7 @@ def parsejson(request):
 
 def movebag(nameofbag):
     os.rename("landing/" + nameofbag, "storage/" + nameofbag)
+    print("Bag " + nameofbag + " has been moved")
 
 
 def getaccessiondata(nameofbag):
