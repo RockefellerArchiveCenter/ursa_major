@@ -1,4 +1,5 @@
 import os
+from filecmp import cmp
 from pathlib import Path
 import MySQLdb
 import json
@@ -68,6 +69,21 @@ def getaccessiondata(nameofbag):
     db.close()
 
     return result
+
+
+def isdatavalid(data):
+    requiredKeys = ("extent_files", "url", "acquisition_type", "use_restrictions",
+                    "use_restrictions", "extent_size",  "start_date", "end_date",
+                    "process_status", "accession_number", "access_restrictions",
+                    "rights_statements", "title", "creators", "transfers", "external_identifiers",
+                    "organization", "created", "appraisal_note", "description", "resource",
+                    "language", "last_modified", "accession_date")
+
+    keylist = data.keys()
+    if (set(keylist) - set(requiredKeys)) == set() and (set(requiredKeys) - set(keylist)) == set():
+        return True
+    else:
+        return False
 
 
 def fornaxpass(accessiondata):

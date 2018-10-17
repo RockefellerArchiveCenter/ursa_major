@@ -33,9 +33,16 @@ class AccessionViewSet(viewsets.ModelViewSet):
         return AccessionSerializer
 
     def create(self, request):
+        print("--------------------------------------------------------------")
+        if(isdatavalid(request.data) == True):
+            print("Valid Accession")
+        else:
+            print("This is not a Valid Accession")
+        print("--------------------------------------------------------------")
         accession = Accession.objects.create(
             data=request.data
         )
+
         for transfer in request.data['transfers']:
             transfer = Bag.objects.create(
                 bag_identifier=transfer['identifier'],
