@@ -6,7 +6,7 @@ from .library import *
 
 class Data(object):
 
-    data = dict(url='http://localhost:8000/api/accessions/8/', creators=[], external_identifiers=[], transfers=[],
+    data = dict( url='http://localhost:8000/api/accessions/8/', creators=[], external_identifiers=[], transfers=[],
                organization="Test Organization", rights_statements=[], language="und",
                title="Test Organization, Custard Pie Appreciation Consortium, Desperate Dan Appreciation Society grant records",
                accession_number='null', accession_date="2018-09-18T11:13:25.348653-04:00",
@@ -20,9 +20,7 @@ class Data(object):
                process_status=10)
 
 class BagTestCase(TestCase):
-        # def setUp(self):
-
 
         def test_isdatavalid(self):
             datatest = Data()
-            self.assertTrue(isdatavalid(datatest.data), False)
+            self.assertTrue(isdatavalid(datatest.data))
