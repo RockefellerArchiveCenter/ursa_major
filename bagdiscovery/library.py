@@ -35,9 +35,21 @@ def getbags():
 def checkforbag(nameofbag):
     my_file = Path("landing/" + nameofbag)
     if my_file.exists():
+        print("Bag " + nameofbag + " is present in landing")
         return 'true'
     else:
-        print("Bag " + nameofbag + " is not present")
+        print("Bag " + nameofbag + " is not present in landing")
+
+
+
+def checkforstoragebag(nameofbag):
+    my_file = Path("storage/" + nameofbag)
+    if my_file.exists():
+        print("Bag " + nameofbag + " is present in storage")
+        return 'true'
+    else:
+        print("Bag " + nameofbag + " is not present in storage")
+
 
 
 def parsejson(request):
@@ -57,6 +69,7 @@ def parsejson(request):
 def movebag(nameofbag):
     os.rename("landing/" + nameofbag, "storage/" + nameofbag)
     print("Bag " + nameofbag + " has been moved")
+    return checkforstoragebag(nameofbag)
 
 
 def getaccessiondata(nameofbag):
@@ -86,14 +99,18 @@ def isdatavalid(data):
         return False
 
 
-def fornaxpass(accessiondata):
-    # defining the Fornax-endpoint
-    API_ENDPOINT = ""
 
-    # data to be sent to api
-    data = {'accessiondata': accessiondata}
 
-    # sending post request and saving response as response object
-    r = requests.post(url=API_ENDPOINT, data=data)
-
-    return r
+#
+#
+# def fornaxpass(accessiondata):
+#     # defining the Fornax-endpoint
+#     API_ENDPOINT = ""
+#
+#     # data to be sent to api
+#     data = {'accessiondata': accessiondata}
+#
+#     # sending post request and saving response as response object
+#     r = requests.post(url=API_ENDPOINT, data=data)
+#
+#     return r

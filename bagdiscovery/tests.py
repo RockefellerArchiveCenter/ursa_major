@@ -19,8 +19,29 @@ class Data(object):
                created="2018-09-18T11:13:25.348762-04:00", last_modified="2018-09-18T11:13:25.567316-04:00",
                process_status=10)
 
+
 class BagTestCase(TestCase):
 
         def test_isdatavalid(self):
             datatest = Data()
             self.assertTrue(isdatavalid(datatest.data))
+
+        def test_checkforbag(self):
+            new_file_path = os.path.join("landing/", 'mynewfile.txt')
+            with open(new_file_path, 'w') as new_file:
+                new_file.write('Something more interesting than this')
+            try:
+                self.assertTrue(checkforbag('mynewfile.txt'))
+                os.remove("landing/mynewfile.txt")
+            except:
+                os.remove("landing/mynewfile.txt")
+
+        def test_movebag(self):
+            new_file_path = os.path.join("landing/", 'mynewfile.txt')
+            with open(new_file_path, 'w') as new_file:
+                new_file.write('Something more interesting than this')
+            try:
+                self.assertTrue(movebag('mynewfile.txt'))
+                os.remove("storage/mynewfile.txt")
+            except:
+                os.remove("storage/mynewfile.txt")
