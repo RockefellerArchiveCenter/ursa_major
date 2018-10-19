@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+from . import config as CF
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -128,3 +129,6 @@ STATIC_URL = '/static/'
 CRON_CLASSES = [
     "bagdiscovery.cron.bagStore"
 ]
+
+TEST_LANDING_DIR = CF.TEST_LANDING_DIR
+TEST_STORAGE_DIR = CF.TEST_STORAGE_DIR
