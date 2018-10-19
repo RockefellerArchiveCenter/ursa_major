@@ -1,9 +1,18 @@
 import os
-from pathlib import Path
-import MySQLdb
 import json
 from .models import Bag
 import requests
+
+
+def process_bag(bag):
+    bag_name = "{}.tar.gz"format(bag.bag_identifier)
+    try:
+        checkforbag(bag_name)
+        movebag(bag_name)
+        return True
+    except Exception as e:
+        print(e)
+        return False
 
 
 def storebag(request, nameofbag):
@@ -19,24 +28,13 @@ def storebag(request, nameofbag):
     bag.save()
 
 
-def getbags():
-    db = MySQLdb.connect(user='root', db='mysql', passwd='example', host='ursa-major-db')
-    cursor = db.cursor()
-    cursor.execute("SELECT * FROM mysql.bag")
-    result = cursor.fetchall()
-
-    db.commit()
-    db.close()
-
-    return result
-
-
-def checkforbag(nameofbag):
-    my_file = Path("landing/" + nameofbag)
-    if my_file.exists():
-        return 'true'
+def checkforbag(bag_name):
+    bag_path = os.path.join(settings.LANDING_DIR, bag_name)
+    if bag_path.exists():
+        return True
     else:
-        print("Bag " + nameofbag + " is not present")
+        print("Bag {} not present".format(bag_name))
+        return False
 
 
 def parsejson(request):
@@ -53,21 +51,16 @@ def parsejson(request):
             storebag(request, name)
 
 
-def movebag(nameofbag):
-    os.rename("landing/" + nameofbag, "storage/" + nameofbag)
-    print("Bag " + nameofbag + " has been moved")
-
-
-def getaccessiondata(nameofbag):
-    db = MySQLdb.connect(user='root', db='mysql', passwd='example', host='ursa-major-db')
-    cursor = db.cursor()
-    cursor.execute("SELECT accessiondata FROM mysql.bag WHERE bagName = '" + nameofbag + ".zip'")
-    result = cursor.fetchall()
-
-    db.commit()
-    db.close()
-
-    return result
+def movebag(bag_name):
+    try:
+        os.rename(
+            os.path.join(settings.LANDING_DIR, bag_name),
+            os.path.join(settings.STORAGE_DIR, bag_name))
+        print("Bag {} has been moved".format(bag_name))
+        return True
+    except Exception as e:
+        print(e)
+        return False
 
 
 def fornaxpass(accessiondata):
