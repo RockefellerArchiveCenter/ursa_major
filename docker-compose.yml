@@ -4,6 +4,8 @@ services:
 
   ursa-major-db:
     image: postgres:10.4
+    volumes:
+      - ursamajordb:/var/lib/postgresql/data/
 
   ursa-major-web:
     build: .
@@ -14,3 +16,6 @@ services:
       - "8005:8005"
     depends_on:
       - ursa-major-db
+
+volumes:
+  ursamajordb:
