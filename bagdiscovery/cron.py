@@ -1,21 +1,19 @@
-from django_cron import  CronJobBase, Schedule
-from .library import *
-from .models import *
+from django_cron import CronJobBase, Schedule
+from .library import BagProcessor
+from .models import Bag
+
 
 class bagStore(CronJobBase):
     RUN_EVERY_MINS = 0
-    schedule = Schedule(run_every_mins = RUN_EVERY_MINS)
+    schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
 
     code = 'bagdiscovery.bagcron'
 
     def do(self):
-        bag = Bag.objects.all()
+        bags = Bag.objects.all()
 
-        for i in bag:
-            name = i.bag_identifier + ".tar.gz"
-            # print(name)
-            if (checkforbag(name)) == 'true':
-                # if true move to storage directory
-                movebag(name)
-            else:
-                print('No bags are present')
+        for bag in bags:
+            try:
+                BagProcessor().run(bag)
+            except Exception as e:
+                print(e)
