@@ -1,5 +1,5 @@
 from django_cron import CronJobBase, Schedule
-from .library import *
+from .library import BagProcessor
 from .models import *
 
 
@@ -13,9 +13,7 @@ class bagStore(CronJobBase):
         bags = Bag.objects.all()
 
         for bag in bags:
-            # name = bag.bag_identifier + ".tar.gz"
-            # # print(name)
             try:
-                process_bag(bag)
+                BagProcessor().run(bag)
             except Exception as e:
-                print('No bags are present')
+                print(e)
