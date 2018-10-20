@@ -1,33 +1,39 @@
 import os
-from .models import Bag
+from ursa_major import settings
 
 
 class BagProcessor:
+    def __init__(self, dirs=None):
+        if dirs:
+            self.landing_dir = dirs['landing']
+            self.storage_dir = dirs['storage']
+        else:
+            self.landing_dir = settings.LANDING_DIR
+            self.storage_dir = settings.STORAGE_DIR
 
     def run(self, bag):
-        bag_name = "{}.tar.gz".format(bag.bag_identifier)
-        try:
-            self.checkforbag(bag_name)
-            self.movebag(bag_name)
-            return True
-        except Exception as e:
-            print(e)
-            return False
+        self.bag = bag
+        self.bag_name = "{}.tar.gz".format(bag.bag_identifier)
+        if self.checkforbag():
+            return self.movebag()
 
-    def checkforbag(self, bag_name):
-        bag_path = os.path.join(settings.LANDING_DIR, bag_name)
-        if bag_path.exists():
+    def checkforbag(self):
+        if os.path.exists(os.path.join(self.landing_dir, self.bag_name)):
             return True
         else:
-            print("Bag {} not present".format(bag_name))
+            print("Bag {} not present".format(self.bag_name))
             return False
 
-    def movebag(self, bag_name):
+    def movebag(self):
+        if not os.path.isdir(os.path.join(settings.BASE_DIR, self.storage_dir)):
+            os.makedirs(os.path.join(settings.BASE_DIR, self.storage_dir))
         try:
+            new_path = os.path.join(self.storage_dir, self.bag_name)
             os.rename(
-                os.path.join(settings.LANDING_DIR, bag_name),
-                os.path.join(settings.STORAGE_DIR, bag_name))
-            print("Bag {} has been moved".format(bag_name))
+                os.path.join(settings.BASE_DIR, self.landing_dir, self.bag_name),
+                os.path.join(settings.BASE_DIR, new_path))
+            self.bag.bag_path = new_path
+            print("Bag {} has been moved".format(self.bag_name))
             return True
         except Exception as e:
             print(e)
