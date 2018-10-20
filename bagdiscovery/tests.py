@@ -20,7 +20,7 @@ class BagTestCase(TestCase):
         if isdir(d):
             shutil.rmtree(d)
 
-        def test_createaccessions(self):
+        def test_createobjects(self):
             for f in listdir(data_fixture_dir):
                 with open(join(data_fixture_dir, f), 'r') as json_file:
                     accession_data = json.load(json_file)
@@ -28,8 +28,15 @@ class BagTestCase(TestCase):
                     response = AccessionViewSet.as_view(actions={"post": "create"})(request)
                     self.assertEqual(response.status_code, 200, "Wrong HTTP code")
                     print('Created accession')
+            # test number of accessions
+            # test number of transfers
 
         def test_processbags(self):
             shutil.copytree(bag_fixture_dir, settings.TEST_LANDING_DIR)
             process = bagStore().do()
             self.assertNotEqual(False, process)
+
+        def tearDown(self):
+            for d in [settings.TEST_LANDING_DIR, settings.TEST_STORAGE_DIR]:
+                if isdir(d):
+                    shutil.rmtree(d)
