@@ -10,7 +10,7 @@ class BagStore(CronJobBase):
     code = 'bagdiscovery.bagcron'
 
     def do(self):
-        bags = Bag.objects.all()
+        bags = Bag.objects.filter(bag_path__isnull=True)
 
         for bag in bags:
             try:
