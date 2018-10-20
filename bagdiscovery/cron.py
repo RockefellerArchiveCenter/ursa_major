@@ -1,6 +1,6 @@
 from django_cron import CronJobBase, Schedule
 from .library import BagProcessor
-from .models import *
+from .models import Bag
 
 
 class bagStore(CronJobBase):

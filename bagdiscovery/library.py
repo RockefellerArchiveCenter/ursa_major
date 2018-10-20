@@ -1,7 +1,5 @@
 import os
-import json
 from .models import Bag
-import requests
 
 
 class BagProcessor:
