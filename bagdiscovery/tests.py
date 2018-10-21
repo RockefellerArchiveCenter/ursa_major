@@ -47,6 +47,16 @@ class BagTestCase(TestCase):
             run = processor.run(bag)
             self.assertTrue(run)
 
+    def schema(self):
+        print('*** Getting schema view ***')
+        schema = self.client.get(reverse('schema-json', kwargs={"format": ".json"}))
+        self.assertEqual(schema.status_code, 200, "Wrong HTTP code")
+
+    def health_check(self):
+        print('*** Getting status view ***')
+        status = self.client.get(reverse('api_health_ping'))
+        self.assertEqual(status.status_code, 200, "Wrong HTTP code")
+
     def tearDown(self):
         for d in [settings.TEST_LANDING_DIR, settings.TEST_STORAGE_DIR]:
             if isdir(d):
@@ -55,3 +65,5 @@ class BagTestCase(TestCase):
     def test_bags(self):
         self.createobjects()
         self.processbags()
+        self.schema()
+        self.health_check()

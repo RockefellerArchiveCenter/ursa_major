@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'bagdiscovery',
     'django_cron',
     'rest_framework',
+    'drf_yasg',
+    'health_check',
 ]
 
 MIDDLEWARE = [
