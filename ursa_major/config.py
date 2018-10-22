@@ -1,2 +1,2 @@
-ALLOWED_HOSTS = ['localhost']
-
+LANDING_DIR = 'landing'
+STORAGE_DIR = 'storage'

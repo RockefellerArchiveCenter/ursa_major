@@ -1,82 +1,34 @@
 import os
-from pathlib import Path
-import MySQLdb
-import json
 from .models import Bag
-import requests
 
 
-def storebag(request, nameofbag):
-    json_data = json.loads(request.body.decode(encoding='UTF-8'))
-    json_bag = json.dumps(json_data)
+class BagProcessor:
 
-    bag = Bag()
-    bag.accessiondata = json_bag
-    # bag.urlpath = "storage/" + nameofbag
-    bag.urlpath = os.path.abspath("storage/" + nameofbag)
-    bag.bagName = nameofbag
+    def run(self, bag):
+        bag_name = "{}.tar.gz".format(bag.bag_identifier)
+        try:
+            self.checkforbag(bag_name)
+            self.movebag(bag_name)
+            return True
+        except Exception as e:
+            print(e)
+            return False
 
-    bag.save()
+    def checkforbag(self, bag_name):
+        bag_path = os.path.join(settings.LANDING_DIR, bag_name)
+        if bag_path.exists():
+            return True
+        else:
+            print("Bag {} not present".format(bag_name))
+            return False
 
-
-def getbags():
-    db = MySQLdb.connect(user='root', db='mysql', passwd='example', host='ursa-major-db')
-    cursor = db.cursor()
-    cursor.execute("SELECT * FROM mysql.bag")
-    result = cursor.fetchall()
-
-    db.commit()
-    db.close()
-
-    return result
-
-
-def checkforbag(nameofbag):
-    my_file = Path("landing/" + nameofbag)
-    if my_file.exists():
-        return 'true'
-    else:
-        print("File is not present")
-
-
-def parsejson(request):
-    json_data = json.loads(request.body.decode(encoding='UTF-8'))
-
-    # print json_data['transfers']
-    for each in json_data['transfers']:
-        name = each['identifier'] + ".tar.gz"
-        print(name)
-        if (checkforbag(name)) == 'true':
-            # if true move to storage directory
-            movebag(name)
-            # Then store name, accession data, and path in database.
-            storebag(request, name)
-
-
-def movebag(nameofbag):
-    os.rename("landing/" + nameofbag, "storage/" + nameofbag)
-
-
-def getaccessiondata(nameofbag):
-    db = MySQLdb.connect(user='root', db='mysql', passwd='example', host='ursa-major-db')
-    cursor = db.cursor()
-    cursor.execute("SELECT accessiondata FROM mysql.bag WHERE bagName = '" + nameofbag + ".zip'")
-    result = cursor.fetchall()
-
-    db.commit()
-    db.close()
-
-    return result
-
-
-def fornaxpass(accessiondata):
-    # defining the Fornax-endpoint
-    API_ENDPOINT = ""
-
-    # data to be sent to api
-    data = {'accessiondata': accessiondata}
-
-    # sending post request and saving response as response object
-    r = requests.post(url=API_ENDPOINT, data=data)
-
-    return r
+    def movebag(self, bag_name):
+        try:
+            os.rename(
+                os.path.join(settings.LANDING_DIR, bag_name),
+                os.path.join(settings.STORAGE_DIR, bag_name))
+            print("Bag {} has been moved".format(bag_name))
+            return True
+        except Exception as e:
+            print(e)
+            return False
