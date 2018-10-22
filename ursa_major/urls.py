@@ -24,7 +24,7 @@ from drf_yasg import openapi
 
 router = routers.DefaultRouter()
 router.register(r'bags', BagViewSet, 'bag')
-router.register(r'ursamajor', AccessionViewSet, 'accession')
+router.register(r'accessions', AccessionViewSet, 'accession')
 schema_view = get_schema_view(
    openapi.Info(
       title="Ursa Major API",
