@@ -33,6 +33,7 @@ class BagProcessor:
                 os.path.join(settings.BASE_DIR, self.landing_dir, self.bag_name),
                 os.path.join(settings.BASE_DIR, new_path))
             self.bag.bag_path = new_path
+            self.bag.save()
             print("Bag {} has been moved".format(self.bag_name))
             return True
         except Exception as e:
