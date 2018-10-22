@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'bagdiscovery',
     'django_cron',
     'rest_framework',
+    'drf_yasg',
+    'health_check',
 ]
 
 MIDDLEWARE = [
@@ -132,3 +134,5 @@ CRON_CLASSES = [
 
 LANDING_DIR = CF.LANDING_DIR
 STORAGE_DIR = CF.STORAGE_DIR
+TEST_LANDING_DIR = CF.TEST_LANDING_DIR
+TEST_STORAGE_DIR = CF.TEST_STORAGE_DIR

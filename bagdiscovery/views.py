@@ -1,16 +1,13 @@
 from django.shortcuts import render
-from django.views.generic import TemplateView
-from rest_framework import viewsets
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from .library import *
 from .models import Accession, Bag
 from .serializers import AccessionSerializer, AccessionListSerializer, BagSerializer, BagListSerializer
 from ursa_major import settings
-import magic
-from os.path import join
 
 
-class AccessionViewSet(viewsets.ModelViewSet):
+class AccessionViewSet(ModelViewSet):
     """
     retrieve:
     Return data about an accession, identified by a primary key.
@@ -33,19 +30,23 @@ class AccessionViewSet(viewsets.ModelViewSet):
         return AccessionSerializer
 
     def create(self, request):
-        accession = Accession.objects.create(
-            data=request.data
-        )
-        for transfer in request.data['transfers']:
-            transfer = Bag.objects.create(
-                bag_identifier=transfer['identifier'],
-                accession=accession,
+        if isdatavalid(request.data):
+            accession = Accession.objects.create(
+                data=request.data
             )
-        serialized = AccessionSerializer(accession, context={'request': request})
-        return Response(serialized.data)
+
+            for transfer in request.data['transfers']:
+                transfer = Bag.objects.create(
+                    bag_identifier=transfer['identifier'],
+                    accession=accession,
+                )
+            serialized = AccessionSerializer(accession, context={'request': request})
+            return Response(serialized.data)
+        else:
+            return Response({"detail": "Invalid accession data"}, status=500)
 
 
-class BagViewSet(viewsets.ModelViewSet):
+class BagViewSet(ModelViewSet):
     """
     retrieve:
     Return data about a bag, identified by a primary key. Accepts the parameter `id`, which will return all bags matching that id.
