@@ -44,6 +44,8 @@ class BagTestCase(TestCase):
         shutil.copytree(bag_fixture_dir, settings.TEST_LANDING_DIR)
         processor = BagDiscovery(dirs={"landing": settings.TEST_LANDING_DIR, "storage": settings.TEST_STORAGE_DIR}).run()
         self.assertTrue(processor)
+        for bag in Bag.objects.all():
+            self.assertTrue(bag.data)
 
     def run_view(self):
         print('*** Test run view ***')

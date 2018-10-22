@@ -1,4 +1,7 @@
+import json
 import os
+import shutil
+import tarfile
 from .models import Bag
 from ursa_major import settings
 
@@ -11,6 +14,8 @@ class BagDiscovery:
         else:
             self.landing_dir = settings.LANDING_DIR
             self.storage_dir = settings.STORAGE_DIR
+        if not os.path.isdir(os.path.join(settings.BASE_DIR, self.storage_dir)):
+            os.makedirs(os.path.join(settings.BASE_DIR, self.storage_dir))
 
     def run(self):
         bags = Bag.objects.filter(bag_path__isnull=True)
@@ -18,9 +23,11 @@ class BagDiscovery:
             self.bag = bag
             self.bag_name = "{}.tar.gz".format(bag.bag_identifier)
             if self.checkforbag():
+                self.unpackbag()
+                self.savebagdata()
                 self.movebag()
             else:
-                return False
+                continue
         return True
 
     def checkforbag(self):
@@ -30,13 +37,35 @@ class BagDiscovery:
             print("Bag {} not present".format(self.bag_name))
             return False
 
+    def unpackbag(self):
+        try:
+            tf = tarfile.open(os.path.join(self.landing_dir, self.bag_name), 'r')
+            tf.extractall(os.path.join(self.landing_dir))
+            tf.close()
+            os.remove(os.path.join(self.landing_dir, self.bag_name))
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
+    def savebagdata(self):
+        try:
+            with open(os.path.join(self.landing_dir, self.bag.bag_identifier, "{}.json".format(self.bag.bag_identifier))) as json_file:
+                bag_data = json.load(json_file)
+                self.bag.data = bag_data
+                self.bag.save()
+                return True
+        except Exception as e:
+            print(e)
+            return False
+
     def movebag(self):
         if not os.path.isdir(os.path.join(settings.BASE_DIR, self.storage_dir)):
             os.makedirs(os.path.join(settings.BASE_DIR, self.storage_dir))
         try:
             new_path = os.path.join(self.storage_dir, self.bag_name)
             os.rename(
-                os.path.join(settings.BASE_DIR, self.landing_dir, self.bag_name),
+                os.path.join(settings.BASE_DIR, self.landing_dir, self.bag.bag_identifier, self.bag_name),
                 os.path.join(settings.BASE_DIR, new_path))
             self.bag.bag_path = new_path
             self.bag.save()
