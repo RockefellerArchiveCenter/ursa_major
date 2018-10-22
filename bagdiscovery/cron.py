@@ -1,5 +1,5 @@
 from django_cron import CronJobBase, Schedule
-from .library import BagProcessor
+from .library import BagDiscovery
 from .models import Bag
 
 
@@ -10,10 +10,7 @@ class BagStore(CronJobBase):
     code = 'bagdiscovery.bagcron'
 
     def do(self):
-        bags = Bag.objects.filter(bag_path__isnull=True)
-
-        for bag in bags:
             try:
-                BagProcessor().run(bag)
+                BagDiscovery().run()
             except Exception as e:
                 print(e)

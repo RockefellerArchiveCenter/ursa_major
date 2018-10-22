@@ -9,8 +9,8 @@ from rest_framework.test import APIRequestFactory
 
 from .cron import BagStore
 from .models import Accession, Bag
-from .library import BagProcessor
-from .views import AccessionViewSet
+from .library import BagDiscovery
+from .views import AccessionViewSet, BagDiscoveryView
 from ursa_major import settings
 
 data_fixture_dir = join(settings.BASE_DIR, 'fixtures', 'json')
@@ -42,10 +42,14 @@ class BagTestCase(TestCase):
 
     def processbags(self):
         shutil.copytree(bag_fixture_dir, settings.TEST_LANDING_DIR)
-        processor = BagProcessor(dirs={"landing": settings.TEST_LANDING_DIR, "storage": settings.TEST_STORAGE_DIR})
-        for bag in Bag.objects.all():
-            run = processor.run(bag)
-            self.assertTrue(run)
+        processor = BagDiscovery(dirs={"landing": settings.TEST_LANDING_DIR, "storage": settings.TEST_STORAGE_DIR}).run()
+        self.assertTrue(processor)
+
+    def run_view(self):
+        print('*** Test run view ***')
+        request = self.factory.post(reverse('bagdiscovery'))
+        response = BagDiscoveryView.as_view()(request)
+        self.assertEqual(response.status_code, 200, "Wrong HTTP code")
 
     def schema(self):
         print('*** Getting schema view ***')
@@ -65,5 +69,6 @@ class BagTestCase(TestCase):
     def test_bags(self):
         self.createobjects()
         self.processbags()
+        self.run_view()
         self.schema()
         self.health_check()

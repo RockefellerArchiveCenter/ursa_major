@@ -1,7 +1,8 @@
 from django.shortcuts import render
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from .library import *
+from .library import BagDiscovery, isdatavalid
 from .models import Accession, Bag
 from .serializers import AccessionSerializer, AccessionListSerializer, BagSerializer, BagListSerializer
 from ursa_major import settings
@@ -73,3 +74,14 @@ class BagViewSet(ModelViewSet):
         if bag_identifier:
             queryset = queryset.filter(bag_identifier=bag_identifier)
         return queryset
+
+
+class BagDiscoveryView(APIView):
+    """Runs the AssembleSIPs cron job. Accepts POST requests only."""
+
+    def post(self, request, format=None):
+        try:
+            BagDiscovery().run()
+            return Response({"detail": "Bag Discovery routine complete."}, status=200)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=500)

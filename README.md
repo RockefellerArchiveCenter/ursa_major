@@ -28,7 +28,7 @@ When a POST request is sent to the `accessions` endpoint with a payload containi
 
 Bags are discovered and processed on a regular basis when the `BagStore` cron job is run or when a POST request is sent to the `bagdiscovery` endpoint. If the files for a bag do not exist (or are in the process of being transferred) that bag is skipped until the next time the routine is run.
 
-Bag Discovery consists of the following steps (the `BagProcessor` class):
+Bag Discovery consists of the following steps (the `BagDiscovery` class):
 - Checking to see if the files for the bag are in the landing directory
 - "Unpacking" the bag files and saving the metadata to the Bag object
 - Moving bag to the storage directory and updating the `bag_path` field
@@ -44,7 +44,7 @@ Bag Discovery consists of the following steps (the `BagProcessor` class):
 |POST|/accessions||200|Creates accession objects as well as associated bags|
 |GET|/bags| |200|Returns a list of transfers|
 |GET|/bags/{id}| |200|Returns data about an individual transfer|
-|POST|/bagdiscovery||200|Runs the BagProcessor routine|
+|POST|/bagdiscovery||200|Runs the BagDiscovery routine|
 |GET|/status||200|Return the status of the microservice|
 
 

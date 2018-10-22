@@ -1,8 +1,9 @@
 import os
+from .models import Bag
 from ursa_major import settings
 
 
-class BagProcessor:
+class BagDiscovery:
     def __init__(self, dirs=None):
         if dirs:
             self.landing_dir = dirs['landing']
@@ -11,11 +12,16 @@ class BagProcessor:
             self.landing_dir = settings.LANDING_DIR
             self.storage_dir = settings.STORAGE_DIR
 
-    def run(self, bag):
-        self.bag = bag
-        self.bag_name = "{}.tar.gz".format(bag.bag_identifier)
-        if self.checkforbag():
-            return self.movebag()
+    def run(self):
+        bags = Bag.objects.filter(bag_path__isnull=True)
+        for bag in bags:
+            self.bag = bag
+            self.bag_name = "{}.tar.gz".format(bag.bag_identifier)
+            if self.checkforbag():
+                self.movebag()
+            else:
+                return False
+        return True
 
     def checkforbag(self):
         if os.path.exists(os.path.join(self.landing_dir, self.bag_name)):
