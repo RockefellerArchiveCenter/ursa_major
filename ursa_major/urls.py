@@ -27,9 +27,9 @@ router.register(r'bags', BagViewSet, 'bag')
 router.register(r'ursamajor', AccessionViewSet, 'accession')
 schema_view = get_schema_view(
    openapi.Info(
-      title="Fornax API",
+      title="Ursa Major API",
       default_version='v1',
-      description="API for Fornax",
+      description="API for Ursa Major",
       contact=openapi.Contact(email="archive@rockarch.org"),
       license=openapi.License(name="MIT License"),
    ),
