@@ -49,7 +49,7 @@ class BagTestCase(TestCase):
 
     def run_view(self):
         print('*** Test run view ***')
-        request = self.factory.post(reverse('bagdiscovery'))
+        request = self.factory.post(reverse('bagdiscovery'), {"test": True})
         response = BagDiscoveryView.as_view()(request)
         self.assertEqual(response.status_code, 200, "Wrong HTTP code")
 

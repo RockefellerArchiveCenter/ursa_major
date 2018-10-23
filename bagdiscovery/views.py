@@ -80,8 +80,11 @@ class BagDiscoveryView(APIView):
     """Runs the AssembleSIPs cron job. Accepts POST requests only."""
 
     def post(self, request, format=None):
+        dirs = None
+        if request.POST['test']:
+            dirs = {"landing": settings.TEST_LANDING_DIR, "storage": settings.TEST_STORAGE_DIR}
         try:
-            BagDiscovery().run()
+            BagDiscovery(dirs).run()
             return Response({"detail": "Bag Discovery routine complete."}, status=200)
         except Exception as e:
             return Response({"detail": str(e)}, status=500)
