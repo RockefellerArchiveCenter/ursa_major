@@ -6,6 +6,9 @@ from .models import Bag
 from ursa_major import settings
 
 
+class BagDiscoveryException(Exception): pass
+
+
 class BagDiscovery:
     def __init__(self, dirs=None):
         if dirs:
@@ -20,60 +23,38 @@ class BagDiscovery:
     def run(self):
         bags = Bag.objects.filter(bag_path__isnull=True)
         for bag in bags:
-            self.bag = bag
             self.bag_name = "{}.tar.gz".format(bag.bag_identifier)
-            if self.checkforbag():
-                self.unpackbag()
-                self.savebagdata()
-                self.movebag()
+
+            if os.path.exists(os.path.join(self.landing_dir, self.bag_name)):
+                try:
+                    tf = tarfile.open(os.path.join(self.landing_dir, self.bag_name), 'r')
+                    tf.extractall(os.path.join(self.landing_dir))
+                    tf.close()
+                    os.remove(os.path.join(self.landing_dir, self.bag_name))
+                except Exception as e:
+                    raise BagDiscoveryException("Error unpacking bag: {}".format(e))
+
+                try:
+                    with open(os.path.join(self.landing_dir, bag.bag_identifier, "{}.json".format(bag.bag_identifier))) as json_file:
+                        bag_data = json.load(json_file)
+                        bag.data = bag_data
+                        bag.save()
+                except Exception as e:
+                    raise BagDiscoveryException("Error saving bag data: {}".format(e))
+
+                try:
+                    new_path = os.path.join(self.storage_dir, self.bag_name)
+                    os.rename(
+                        os.path.join(settings.BASE_DIR, self.landing_dir, bag.bag_identifier, self.bag_name),
+                        os.path.join(settings.BASE_DIR, new_path))
+                    bag.bag_path = new_path
+                    bag.save()
+                    print("Bag {} has been moved".format(self.bag_name))
+                except Exception as e:
+                    raise BagDiscoveryException("Error moving bag: {}".format(e))
             else:
                 continue
         return True
-
-    def checkforbag(self):
-        if os.path.exists(os.path.join(self.landing_dir, self.bag_name)):
-            return True
-        else:
-            print("Bag {} not present".format(self.bag_name))
-            return False
-
-    def unpackbag(self):
-        try:
-            tf = tarfile.open(os.path.join(self.landing_dir, self.bag_name), 'r')
-            tf.extractall(os.path.join(self.landing_dir))
-            tf.close()
-            os.remove(os.path.join(self.landing_dir, self.bag_name))
-            return True
-        except Exception as e:
-            print(e)
-            return False
-
-    def savebagdata(self):
-        try:
-            with open(os.path.join(self.landing_dir, self.bag.bag_identifier, "{}.json".format(self.bag.bag_identifier))) as json_file:
-                bag_data = json.load(json_file)
-                self.bag.data = bag_data
-                self.bag.save()
-                return True
-        except Exception as e:
-            print(e)
-            return False
-
-    def movebag(self):
-        if not os.path.isdir(os.path.join(settings.BASE_DIR, self.storage_dir)):
-            os.makedirs(os.path.join(settings.BASE_DIR, self.storage_dir))
-        try:
-            new_path = os.path.join(self.storage_dir, self.bag_name)
-            os.rename(
-                os.path.join(settings.BASE_DIR, self.landing_dir, self.bag.bag_identifier, self.bag_name),
-                os.path.join(settings.BASE_DIR, new_path))
-            self.bag.bag_path = new_path
-            self.bag.save()
-            print("Bag {} has been moved".format(self.bag_name))
-            return True
-        except Exception as e:
-            print(e)
-            return False
 
 
 def isdatavalid(data):
