@@ -27,34 +27,43 @@ class BagDiscovery:
 
             if os.path.exists(os.path.join(self.landing_dir, self.bag_name)):
                 try:
-                    tf = tarfile.open(os.path.join(self.landing_dir, self.bag_name), 'r')
-                    tf.extractall(os.path.join(self.landing_dir))
-                    tf.close()
-                    os.remove(os.path.join(self.landing_dir, self.bag_name))
+                    self.unpack_bag()
                 except Exception as e:
                     raise BagDiscoveryException("Error unpacking bag: {}".format(e))
 
                 try:
-                    with open(os.path.join(self.landing_dir, bag.bag_identifier, "{}.json".format(bag.bag_identifier))) as json_file:
-                        bag_data = json.load(json_file)
-                        bag.data = bag_data
-                        bag.save()
+                    self.save_bag_data(bag)
                 except Exception as e:
                     raise BagDiscoveryException("Error saving bag data: {}".format(e))
 
                 try:
-                    new_path = os.path.join(self.storage_dir, self.bag_name)
-                    os.rename(
-                        os.path.join(settings.BASE_DIR, self.landing_dir, bag.bag_identifier, self.bag_name),
-                        os.path.join(settings.BASE_DIR, new_path))
-                    bag.bag_path = new_path
-                    bag.save()
-                    print("Bag {} has been moved".format(self.bag_name))
+                    self.move_bag(bag)
                 except Exception as e:
                     raise BagDiscoveryException("Error moving bag: {}".format(e))
             else:
                 continue
         return True
+
+    def unpack_bag(self):
+        tf = tarfile.open(os.path.join(self.landing_dir, self.bag_name), 'r')
+        tf.extractall(os.path.join(self.landing_dir))
+        tf.close()
+        os.remove(os.path.join(self.landing_dir, self.bag_name))
+
+    def save_bag_data(self, bag):
+        with open(os.path.join(self.landing_dir, bag.bag_identifier, "{}.json".format(bag.bag_identifier))) as json_file:
+            bag_data = json.load(json_file)
+            bag.data = bag_data
+            bag.save()
+
+    def move_bag(self, bag):
+        new_path = os.path.join(self.storage_dir, self.bag_name)
+        os.rename(
+            os.path.join(settings.BASE_DIR, self.landing_dir, bag.bag_identifier, self.bag_name),
+            os.path.join(settings.BASE_DIR, new_path))
+        bag.bag_path = new_path
+        bag.save()
+        print("Bag {} has been moved".format(self.bag_name))
 
 
 def isdatavalid(data):
