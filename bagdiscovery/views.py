@@ -1,11 +1,16 @@
+import logging
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
+from structlog import wrap_logger
+from uuid import uuid4
 from .library import BagDiscovery, isdatavalid
 from .models import Accession, Bag
 from .serializers import AccessionSerializer, AccessionListSerializer, BagSerializer, BagListSerializer
 from ursa_major import settings
+
+logger = wrap_logger(logger=logging.getLogger(__name__))
 
 
 class AccessionViewSet(ModelViewSet):
@@ -31,19 +36,23 @@ class AccessionViewSet(ModelViewSet):
         return AccessionSerializer
 
     def create(self, request):
+        self.log = logger
+        self.log.bind(transaction_id=str(uuid4()), request_id=str(uuid4()))
         if isdatavalid(request.data):
             accession = Accession.objects.create(
                 data=request.data
             )
-
+            self.log.debug("Accession saved", object=accession)
             for transfer in request.data['transfers']:
                 transfer = Bag.objects.create(
                     bag_identifier=transfer['identifier'],
                     accession=accession,
                 )
+                self.log.debug("Bag saved", object=transfer)
             serialized = AccessionSerializer(accession, context={'request': request})
             return Response(serialized.data)
         else:
+            self.log.error("Invalid accession data")
             return Response({"detail": "Invalid accession data"}, status=500)
 
 

@@ -31,6 +31,7 @@ ruamel.yaml==0.15.74
 six==1.11.0
 smmap2==2.0.5
 strict-rfc3339==0.7
+structlog==18.2.0
 swagger-spec-validator==2.4.1
 uritemplate==3.0.0
 urllib3==1.23
