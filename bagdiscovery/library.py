@@ -2,6 +2,10 @@ import json
 import os
 import shutil
 import tarfile
+
+import requests
+from django.core.serializers.json import DjangoJSONEncoder
+
 from .models import Bag
 from ursa_major import settings
 
@@ -40,6 +44,12 @@ class BagDiscovery:
                     self.move_bag(bag)
                 except Exception as e:
                     raise BagDiscoveryException("Error moving bag: {}".format(e))
+
+                try:
+                    self.post_to_fornax()
+                except Exception as e:
+                    raise BagDiscoveryException("Error sending POST of metadata to Fornax: {}".format(e))
+
             else:
                 continue
         return True
@@ -64,6 +74,16 @@ class BagDiscovery:
         bag.bag_path = new_path
         bag.save()
         print("Bag {} has been moved".format(self.bag_name))
+
+    def post_to_fornax(self):
+        bag_data = Bag.objects.values_list('data')
+        bag_metadata = json.dumps(list(bag_data), cls=DjangoJSONEncoder)
+
+        # Have to change this from a hardcoded endpoint. Will update as the Gateway is developed
+        # print(bag_metadata)
+
+        r = requests.post("http://localhost:8003/sips/", bag_metadata)
+        print(r.status_code, r.reason)
 
 
 def isdatavalid(data):
