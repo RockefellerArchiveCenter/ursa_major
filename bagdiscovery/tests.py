@@ -2,6 +2,7 @@ import json
 from os.path import isdir, join
 from os import makedirs, listdir, remove
 import shutil
+import vcr
 
 from django.test import TestCase
 from django.urls import reverse
@@ -15,6 +16,15 @@ from ursa_major import settings
 
 data_fixture_dir = join(settings.BASE_DIR, 'fixtures', 'json')
 bag_fixture_dir = join(settings.BASE_DIR, 'fixtures', 'bags')
+
+process_vcr = vcr.VCR(
+    serializer='json',
+    cassette_library_dir='fixtures/cassettes',
+    record_mode='once',
+    match_on=['path', 'method', 'query'],
+    filter_query_parameters=['username', 'password'],
+    filter_headers=['Authorization'],
+)
 
 
 class BagTestCase(TestCase):
@@ -41,17 +51,19 @@ class BagTestCase(TestCase):
         self.assertEqual(len(Bag.objects.all()), transfer_count, "Wrong number of transfers created")
 
     def processbags(self):
-        shutil.copytree(bag_fixture_dir, settings.TEST_LANDING_DIR)
-        processor = BagDiscovery(dirs={"landing": settings.TEST_LANDING_DIR, "storage": settings.TEST_STORAGE_DIR}).run()
-        self.assertTrue(processor)
-        for bag in Bag.objects.all():
-            self.assertTrue(bag.data)
+        with process_vcr.use_cassette('process_bags.json'):
+            shutil.copytree(bag_fixture_dir, settings.TEST_LANDING_DIR)
+            processor = BagDiscovery(dirs={"landing": settings.TEST_LANDING_DIR, "storage": settings.TEST_STORAGE_DIR}).run()
+            self.assertTrue(processor)
+            for bag in Bag.objects.all():
+                self.assertTrue(bag.data)
 
     def run_view(self):
-        print('*** Test run view ***')
-        request = self.factory.post(reverse('bagdiscovery'), {"test": True})
-        response = BagDiscoveryView.as_view()(request)
-        self.assertEqual(response.status_code, 200, "Wrong HTTP code")
+        with process_vcr.use_cassette('process_bags.json'):
+            print('*** Test run view ***')
+            request = self.factory.post(reverse('bagdiscovery'), {"test": True})
+            response = BagDiscoveryView.as_view()(request)
+            self.assertEqual(response.status_code, 200, "Wrong HTTP code")
 
     def schema(self):
         print('*** Getting schema view ***')
