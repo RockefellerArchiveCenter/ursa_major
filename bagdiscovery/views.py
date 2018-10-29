@@ -81,7 +81,7 @@ class BagDiscoveryView(APIView):
 
     def post(self, request, format=None):
         dirs = None
-        if request.POST['test']:
+        if request.POST.get('test'):
             dirs = {"landing": settings.TEST_LANDING_DIR, "storage": settings.TEST_STORAGE_DIR}
         try:
             BagDiscovery(dirs).run()
