@@ -26,7 +26,7 @@ psycopg2-binary==2.7.4
 python-magic==0.4.15
 pytz==2018.4
 PyYAML==3.13
-requests==2.19.1
+requests==2.20.0
 rfc3987==1.3.8
 ruamel.yaml==0.15.74
 six==1.11.0
