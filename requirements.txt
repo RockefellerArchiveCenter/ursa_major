@@ -21,11 +21,12 @@ Jinja2==2.10
 jsonpointer==1.14
 jsonschema==2.6.0
 MarkupSafe==1.0
+multidict==4.4.2
 psycopg2-binary==2.7.4
 python-magic==0.4.15
 pytz==2018.4
 PyYAML==3.13
-requests==2.19.1
+requests==2.20.0
 rfc3987==1.3.8
 ruamel.yaml==0.15.74
 six==1.11.0
@@ -36,3 +37,6 @@ swagger-spec-validator==2.4.1
 uritemplate==3.0.0
 urllib3==1.23
 validate-email==1.3
+vcrpy==2.0.1
+wrapt==1.10.11
+yarl==1.2.6
