@@ -36,6 +36,7 @@ class BagTestCase(TestCase):
                 shutil.rmtree(d)
 
     def createobjects(self):
+        print('*** Creating objects ***')
         accession_count = 0
         transfer_count = 0
         for f in listdir(data_fixture_dir):
@@ -44,7 +45,6 @@ class BagTestCase(TestCase):
                 request = self.factory.post(reverse('accession-list'), accession_data, format='json')
                 response = AccessionViewSet.as_view(actions={"post": "create"})(request)
                 self.assertEqual(response.status_code, 200, "Wrong HTTP code")
-                print('Created accession')
                 accession_count += 1
                 transfer_count += len(accession_data['transfers'])
         self.assertEqual(len(Accession.objects.all()), accession_count, "Wrong number of accessions created")

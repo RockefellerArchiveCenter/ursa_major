@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import structlog
 from . import config as CF
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -136,3 +137,16 @@ LANDING_DIR = CF.LANDING_DIR
 STORAGE_DIR = CF.STORAGE_DIR
 TEST_LANDING_DIR = CF.TEST_LANDING_DIR
 TEST_STORAGE_DIR = CF.TEST_STORAGE_DIR
+
+structlog.configure(
+    processors=[
+        structlog.stdlib.add_logger_name,
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.PositionalArgumentsFormatter(),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.processors.UnicodeDecoder(),
+        structlog.processors.TimeStamper(fmt='iso', utc=True),
+        structlog.processors.JSONRenderer()
+    ],
+)
