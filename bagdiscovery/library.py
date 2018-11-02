@@ -19,14 +19,16 @@ class BagDiscoveryException(Exception): pass
 
 
 class BagDiscovery:
-    def __init__(self, dirs=None):
+    def __init__(self, url, dirs=None):
         self.log = logger
+        self.url = url
         if dirs:
             self.landing_dir = dirs['landing']
             self.storage_dir = dirs['storage']
         else:
             self.landing_dir = settings.LANDING_DIR
             self.storage_dir = settings.STORAGE_DIR
+
         if not os.path.isdir(os.path.join(settings.BASE_DIR, self.storage_dir)):
             os.makedirs(os.path.join(settings.BASE_DIR, self.storage_dir))
 
@@ -45,14 +47,12 @@ class BagDiscovery:
                 except Exception as e:
                     self.log.error("Error unpacking bag: {}".format(e))
                     raise BagDiscoveryException("Error unpacking bag: {}".format(e))
-
                 try:
                     self.save_bag_data(bag)
                     self.log.debug("Bag data saved")
                 except Exception as e:
                     self.log.error("Error saving bag data: {}".format(e))
                     raise BagDiscoveryException("Error saving bag data: {}".format(e))
-
                 try:
                     self.move_bag(bag)
                     self.log.debug("Bag moved to storage")
@@ -61,10 +61,10 @@ class BagDiscovery:
                     raise BagDiscoveryException("Error moving bag: {}".format(e))
 
                 try:
-                    self.post_to_fornax(bag)
+
+                    self.post_to_fornax(bag, self.url)
                 except Exception as e:
                     raise BagDiscoveryException("Error sending POST of metadata to Fornax: {}".format(e))
-
             else:
                 continue
         return True
@@ -89,9 +89,13 @@ class BagDiscovery:
         bag.bag_path = new_path
         bag.save()
 
-    def post_to_fornax(self, bag):
+    def post_to_fornax(self, bag, url):
         # Have to change this from a hardcoded endpoint. Will update as the Gateway is developed
-        r = requests.post("http://fornax-web:8003/sips/", data=json.dumps(bag.data), headers={"Content-Type": "application/json"})
+        r = requests.post(
+            url,
+            data=json.dumps(bag.data),
+            headers={"Content-Type": "application/json"},
+        )
         if r.status_code != 200:
             raise BagDiscoveryException(r.status_code, r.reason)
         return True

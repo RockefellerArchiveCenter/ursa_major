@@ -1,4 +1,5 @@
 import logging
+import urllib
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
@@ -90,10 +91,15 @@ class BagDiscoveryView(APIView):
 
     def post(self, request, format=None):
         dirs = None
+        url = request.GET.get('post_service_url', '')
+        url = (urllib.parse.unquote(url) if url else '')
+
+        print(url, 'this URL was passed FROM zodiac built FROM service URL')
+
         if request.POST.get('test'):
             dirs = {"landing": settings.TEST_LANDING_DIR, "storage": settings.TEST_STORAGE_DIR}
         try:
-            BagDiscovery(dirs).run()
+            BagDiscovery(url, dirs).run()
             return Response({"detail": "Bag Discovery routine complete."}, status=200)
         except Exception as e:
             return Response({"detail": str(e)}, status=500)
