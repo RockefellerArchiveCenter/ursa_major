@@ -60,10 +60,11 @@ class BagDiscovery:
                     self.log.error("Error moving bag: {}".format(e))
                     raise BagDiscoveryException("Error moving bag: {}".format(e))
 
-                try:
-                    self.post_to_fornax(bag, self.url)
-                except Exception as e:
-                    raise BagDiscoveryException("Error sending POST of metadata to Fornax: {}".format(e))
+                if self.url:
+                    try:
+                        self.post_to_fornax(bag, self.url)
+                    except Exception as e:
+                        raise BagDiscoveryException("Error sending POST of metadata to Fornax: {}".format(e))
             else:
                 continue
         return True
