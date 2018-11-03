@@ -61,7 +61,6 @@ class BagDiscovery:
                     raise BagDiscoveryException("Error moving bag: {}".format(e))
 
                 try:
-
                     self.post_to_fornax(bag, self.url)
                 except Exception as e:
                     raise BagDiscoveryException("Error sending POST of metadata to Fornax: {}".format(e))
@@ -90,7 +89,6 @@ class BagDiscovery:
         bag.save()
 
     def post_to_fornax(self, bag, url):
-        # Have to change this from a hardcoded endpoint. Will update as the Gateway is developed
         r = requests.post(
             url,
             data=json.dumps(bag.data),
