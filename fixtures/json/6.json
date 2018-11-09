@@ -6,7 +6,6 @@
             "type": "organization"
         }
     ],
-    "external_identifiers": [],
     "transfers": [
         {
             "url": "http://localhost:8000/api/transfers/28/",
