@@ -12,6 +12,8 @@ services:
     entrypoint: /code/entrypoint.sh
     volumes:
       - .:/code
+      - ~/.ursa-major/landing/:/landing
+      - ~/.ursa-major/storage/:/storage
     ports:
       - "8005:8005"
     depends_on:
