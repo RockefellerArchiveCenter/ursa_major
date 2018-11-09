@@ -83,11 +83,12 @@ class BagDiscovery:
 
     def move_bag(self, bag):
         new_path = os.path.join(self.storage_dir, self.bag_name)
-        os.rename(
+        shutil.move(
             os.path.join(settings.BASE_DIR, self.landing_dir, bag.bag_identifier, self.bag_name),
             os.path.join(settings.BASE_DIR, new_path))
         bag.bag_path = new_path
         bag.save()
+        shutil.rmtree(os.path.join(settings.BASE_DIR, self.landing_dir, bag.bag_identifier))
 
     def post_to_fornax(self, bag):
         # Have to change this from a hardcoded endpoint. Will update as the Gateway is developed
@@ -99,9 +100,8 @@ class BagDiscovery:
 
 def isdatavalid(data):
     requiredKeys = ("extent_files", "url", "acquisition_type", "use_restrictions",
-                    "use_restrictions", "extent_size",  "start_date", "end_date",
-                    "process_status", "accession_number", "access_restrictions",
-                    "rights_statements", "title", "creators", "transfers", "external_identifiers",
+                    "extent_size",  "start_date", "end_date", "process_status", "accession_number",
+                    "rights_statements", "title", "creators", "transfers", "access_restrictions",
                     "organization", "created", "appraisal_note", "description", "resource",
                     "language", "last_modified", "accession_date")
 
