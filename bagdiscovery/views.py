@@ -99,7 +99,7 @@ class BagDiscoveryView(APIView):
         if request.POST.get('test'):
             dirs = {"landing": settings.TEST_LANDING_DIR, "storage": settings.TEST_STORAGE_DIR}
         try:
-            BagDiscovery(url, dirs).run()
-            return Response({"detail": "Bag Discovery routine complete."}, status=200)
+            discover = BagDiscovery(url, dirs).run()
+            return Response({"detail": discover}, status=200)
         except Exception as e:
             return Response({"detail": str(e)}, status=500)

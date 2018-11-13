@@ -36,6 +36,7 @@ class BagDiscovery:
         self.log.bind(request_id=str(uuid4()))
         self.log.debug("Found {} bags to process".format(len(Bag.objects.filter(bag_path__isnull=True))))
         bags = Bag.objects.filter(bag_path__isnull=True)
+        bag_count = 0
         for bag in bags:
             self.bag_name = "{}.tar.gz".format(bag.bag_identifier)
             self.log.bind(object=bag.bag_identifier)
@@ -65,9 +66,13 @@ class BagDiscovery:
                         self.post_to_fornax(bag, self.url)
                     except Exception as e:
                         raise BagDiscoveryException("Error sending POST of metadata to Fornax: {}".format(e))
+
+                bag_count += 1
+
             else:
                 continue
-        return True
+
+        return "{} bags discovered and stored.".format(bag_count)
 
     def unpack_bag(self):
         tf = tarfile.open(os.path.join(self.landing_dir, self.bag_name), 'r')
