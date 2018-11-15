@@ -22,15 +22,12 @@ class BagDiscovery:
     def __init__(self, url, dirs=None):
         self.log = logger
         self.url = url
-        if dirs:
-            self.landing_dir = dirs['landing']
-            self.storage_dir = dirs['storage']
-        else:
-            self.landing_dir = settings.LANDING_DIR
-            self.storage_dir = settings.STORAGE_DIR
-
+        self.landing_dir = dirs['landing'] if dirs else settings.LANDING_DIR
+        self.storage_dir = dirs['storage'] if dirs else settings.STORAGE_DIR
         if not os.path.isdir(os.path.join(settings.BASE_DIR, self.storage_dir)):
-            os.makedirs(os.path.join(settings.BASE_DIR, self.storage_dir))
+            raise BagDiscoveryException("Storage directory does not exist.")
+        if not os.access(os.path.join(settings.BASE_DIR, self.storage_dir), os.W_OK):
+            raise BagDiscoveryException("Storage directory not writable.")
 
     def run(self):
         self.log.bind(request_id=str(uuid4()))
