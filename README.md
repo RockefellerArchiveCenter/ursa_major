@@ -54,6 +54,10 @@ Bag Discovery consists of the following steps (the `BagDiscovery` class):
 |GET|/status||200|Return the status of the microservice|
 
 
+## Logging
+
+ursa major uses `structlog` to output structured JSON logs. Logging can be configured in `ursa_major/settings.py`.
+
 ## License
 
 This code is released under an [MIT License](LICENSE).
