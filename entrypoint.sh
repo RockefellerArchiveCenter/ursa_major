@@ -11,8 +11,10 @@ if [ ! -f ursa_major/config.py ]; then
 fi
 
 echo "Apply database migrations"
-python manage.py makemigrations 
-python manage.py migrate
+python manage.py makemigrations && python manage.py migrate
+
+echo "Create dirs"
+python manage.py shell < make_dirs.py
 
 #Start server
 echo "Starting server"

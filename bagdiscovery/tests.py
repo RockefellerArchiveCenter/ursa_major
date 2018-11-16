@@ -34,6 +34,8 @@ class BagTestCase(TestCase):
         for d in [settings.TEST_LANDING_DIR, settings.TEST_STORAGE_DIR]:
             if isdir(d):
                 shutil.rmtree(d)
+        shutil.copytree(bag_fixture_dir, settings.TEST_LANDING_DIR)
+        makedirs(settings.TEST_STORAGE_DIR)
 
     def createobjects(self):
         print('*** Creating objects ***')
@@ -52,7 +54,6 @@ class BagTestCase(TestCase):
 
     def processbags(self):
         with process_vcr.use_cassette('process_bags.json'):
-            shutil.copytree(bag_fixture_dir, settings.TEST_LANDING_DIR)
             processor = BagDiscovery('http://fornax-web:8003/sips/', dirs={"landing": settings.TEST_LANDING_DIR, "storage": settings.TEST_STORAGE_DIR}).run()
             self.assertTrue(processor)
             for bag in Bag.objects.all():

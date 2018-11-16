@@ -26,7 +26,7 @@ class BagDiscovery:
         self.storage_dir = dirs['storage'] if dirs else settings.STORAGE_DIR
         for dir in [os.path.join(settings.BASE_DIR, self.landing_dir), os.path.join(settings.BASE_DIR, self.storage_dir)]:
             if not os.path.isdir(dir):
-                raise BagDiscoveryException("Directory does not exist", d)
+                raise BagDiscoveryException("Directory does not exist", dir)
         if not os.access(os.path.join(settings.BASE_DIR, self.storage_dir), os.W_OK):
             raise BagDiscoveryException("Storage directory not writable.")
 
