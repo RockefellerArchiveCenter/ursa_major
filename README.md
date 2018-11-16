@@ -1,25 +1,31 @@
-# Ursa Major
+# ursa major
 
 A microservice to discover and store bags.
 
+ursa major is part of [Project Electron](https://github.com/RockefellerArchiveCenter/project_electron), an initiative to build sustainable, open and user-centered infrastructure for the archival management of digital records at the [Rockefeller Archive Center](http://rockarch.org/).
+
 [![Build Status](https://travis-ci.org/RockefellerArchiveCenter/ursa_major.svg?branch=master)](https://travis-ci.org/RockefellerArchiveCenter/ursa_major)
 
-## Installation
+## Setup
 
-### Quick Start
-If you have [git](https://git-scm.com/) and [Docker](https://www.docker.com/community-edition) installed:
+Install [git](https://git-scm.com/) and clone the repository
 
-      git clone https://github.com/RockefellerArchiveCenter/ursa_major.git
-      cd ursa_major
-      docker-compose up
+    $ git clone https://github.com/RockefellerArchiveCenter/ursa_major.git
+      
+Install [Docker](https://store.docker.com/search?type=edition&offering=community) and run docker-compose from the root directory
 
-To shut down Ursa Major, run:
+    $ cd ursa_major
+    $ docker-compose up
+    
+Once the application starts successfully, you should be able to access the application in your browser at `http://localhost:8005`
 
-      `docker-compose down`
+When you're done, shut down docker-compose
 
-or, if you wish to remove all local data:
+    $ docker-compose down
 
-      `docker-compose down -v`
+Or, if you want to remove all data
+
+    $ docker-compose down -v
 
 
 ## Usage
