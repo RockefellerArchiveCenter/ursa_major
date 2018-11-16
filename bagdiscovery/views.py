@@ -90,16 +90,12 @@ class BagDiscoveryView(APIView):
     """Runs the AssembleSIPs cron job. Accepts POST requests only."""
 
     def post(self, request, format=None):
-        dirs = None
-        url = request.GET.get('post_service_url', '')
-        url = (urllib.parse.unquote(url) if url else '')
+        dirs = {"src": settings.TEST_SRC_DIR, "dest": settings.TEST_DEST_DIR} if request.POST.get('test') else None
+        post_service_url = request.GET.get('post_service_url')
+        post_service_url = (urllib.parse.unquote(post_service_url) if post_service_url else '')
 
-        print(url, 'this URL was passed FROM zodiac built FROM service URL')
-
-        if request.POST.get('test'):
-            dirs = {"src": settings.TEST_SRC_DIR, "dest": settings.TEST_DEST_DIR}
         try:
-            discover = BagDiscovery(url, dirs).run()
+            discover = BagDiscovery(post_service_url, dirs).run()
             return Response({"detail": discover}, status=200)
         except Exception as e:
             return Response({"detail": str(e)}, status=500)

@@ -63,7 +63,7 @@ class BagDiscovery:
                     try:
                         self.post_to_fornax(bag, self.url)
                     except Exception as e:
-                        raise BagDiscoveryException("Error sending POST of metadata to Fornax: {}".format(e))
+                        raise BagDiscoveryException("Error sending metadata to Fornax: {}".format(e))
 
                 bag_count += 1
 
