@@ -31,11 +31,13 @@ class BagTestCase(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        for d in [settings.TEST_LANDING_DIR, settings.TEST_STORAGE_DIR]:
+        self.src_dir = settings.TEST_SRC_DIR
+        self.dest_dir = settings.TEST_DEST_DIR
+        for d in [self.src_dir, self.dest_dir]:
             if isdir(d):
                 shutil.rmtree(d)
-        shutil.copytree(bag_fixture_dir, settings.TEST_LANDING_DIR)
-        makedirs(settings.TEST_STORAGE_DIR)
+        shutil.copytree(bag_fixture_dir, self.src_dir)
+        makedirs(self.dest_dir)
 
     def createobjects(self):
         print('*** Creating objects ***')
@@ -54,7 +56,7 @@ class BagTestCase(TestCase):
 
     def processbags(self):
         with process_vcr.use_cassette('process_bags.json'):
-            processor = BagDiscovery('http://fornax-web:8003/sips/', dirs={"landing": settings.TEST_LANDING_DIR, "storage": settings.TEST_STORAGE_DIR}).run()
+            processor = BagDiscovery('http://fornax-web:8003/sips/', dirs={"src": self.src_dir, "dest": self.dest_dir}).run()
             self.assertTrue(processor)
             for bag in Bag.objects.all():
                 self.assertTrue(bag.data)
@@ -77,7 +79,7 @@ class BagTestCase(TestCase):
         self.assertEqual(status.status_code, 200, "Wrong HTTP code")
 
     def tearDown(self):
-        for d in [settings.TEST_LANDING_DIR, settings.TEST_STORAGE_DIR]:
+        for d in [self.src_dir, self.dest_dir]:
             if isdir(d):
                 shutil.rmtree(d)
 

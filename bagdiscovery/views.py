@@ -97,7 +97,7 @@ class BagDiscoveryView(APIView):
         print(url, 'this URL was passed FROM zodiac built FROM service URL')
 
         if request.POST.get('test'):
-            dirs = {"landing": settings.TEST_LANDING_DIR, "storage": settings.TEST_STORAGE_DIR}
+            dirs = {"src": settings.TEST_SRC_DIR, "dest": settings.TEST_DEST_DIR}
         try:
             discover = BagDiscovery(url, dirs).run()
             return Response({"detail": discover}, status=200)
