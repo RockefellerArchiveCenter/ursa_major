@@ -78,7 +78,6 @@ class BagTestCase(TestCase):
         for bag in Bag.objects.all():
             request = self.factory.post(reverse('cleanup'), {"test": True, "identifier": bag.bag_identifier})
             response = CleanupRoutineView.as_view()(request)
-            print(response)
             self.assertEqual(response.status_code, 200, "Wrong HTTP code")
 
     def schema(self):
