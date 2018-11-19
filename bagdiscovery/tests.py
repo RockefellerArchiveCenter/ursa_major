@@ -10,8 +10,8 @@ from rest_framework.test import APIRequestFactory
 
 from .cron import BagStore
 from .models import Accession, Bag
-from .library import BagDiscovery
-from .views import AccessionViewSet, BagDiscoveryView
+from .library import BagDiscovery, CleanupRoutine
+from .views import AccessionViewSet, BagDiscoveryView, CleanupRoutineView
 from ursa_major import settings
 
 data_fixture_dir = join(settings.BASE_DIR, 'fixtures', 'json')
@@ -54,18 +54,30 @@ class BagTestCase(TestCase):
         self.assertEqual(len(Accession.objects.all()), accession_count, "Wrong number of accessions created")
         self.assertEqual(len(Bag.objects.all()), transfer_count, "Wrong number of transfers created")
 
-    def processbags(self):
+    def process_bags(self):
         with process_vcr.use_cassette('process_bags.json'):
             processor = BagDiscovery('http://fornax-web:8003/sips/', dirs={"src": self.src_dir, "dest": self.dest_dir}).run()
             self.assertTrue(processor)
             for bag in Bag.objects.all():
                 self.assertTrue(bag.data)
 
+    def cleanup_bags(self):
+        for bag in Bag.objects.all():
+            CleanupRoutine(bag.bag_identifier, dirs={"dest": self.dest_dir}).run()
+        self.assertEqual(0, len(listdir(self.dest_dir)))
+
     def run_view(self):
         with process_vcr.use_cassette('process_bags.json'):
             print('*** Test run view ***')
             request = self.factory.post(reverse('bagdiscovery'), {"test": True})
             response = BagDiscoveryView.as_view()(request)
+            self.assertEqual(response.status_code, 200, "Wrong HTTP code")
+
+    def cleanup_view(self):
+        print('*** Test cleanup view ***')
+        for bag in Bag.objects.all():
+            request = self.factory.post(reverse('cleanup'), {"test": True, "identifier": bag.bag_identifier})
+            response = CleanupRoutineView.as_view()(request)
             self.assertEqual(response.status_code, 200, "Wrong HTTP code")
 
     def schema(self):
@@ -85,7 +97,9 @@ class BagTestCase(TestCase):
 
     def test_bags(self):
         self.createobjects()
-        self.processbags()
+        self.process_bags()
+        self.cleanup_bags()
         self.run_view()
+        self.cleanup_view()
         self.schema()
         self.health_check()

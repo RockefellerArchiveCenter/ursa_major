@@ -104,6 +104,22 @@ class BagDiscovery:
         return True
 
 
+class CleanupRoutine:
+    def __init__(self, identifier, dirs):
+        self.identifier = identifier
+        self.dest_dir = dirs['dest'] if dirs else settings.DEST_DIR
+
+    def run(self):
+        try:
+            self.filepath = "{}.tar.gz".format(os.path.join(self.dest_dir, self.identifier))
+            if os.path.isfile(self.filepath):
+                os.remove(self.filepath)
+                return "Transfer {} removed.".format(self.identifier)
+            return "Transfer {} was not found.".format(self.identifier)
+        except Exception as e:
+            return e
+
+
 def isdatavalid(data):
     requiredKeys = ("extent_files", "url", "acquisition_type", "use_restrictions",
                     "extent_size",  "start_date", "end_date", "process_status", "accession_number",
