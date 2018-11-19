@@ -90,7 +90,7 @@ class BagDiscoveryView(APIView):
     """Runs the AssembleSIPs cron job. Accepts POST requests only."""
 
     def post(self, request, format=None):
-        dirs = {"src": settings.TEST_SRC_DIR, "dest": settings.TEST_DEST_DIR} if request.POST.get('test') else None
+        dirs = {"src": settings.TEST_SRC_DIR, "tmp": settings.TEST_TMP_DIR, "dest": settings.TEST_DEST_DIR} if request.POST.get('test') else None
         url = request.GET.get('post_service_url')
         url = (urllib.parse.unquote(url) if url else '')
 
