@@ -23,6 +23,7 @@ class BagDiscovery:
         self.log = logger
         self.url = url
         self.src_dir = dirs['src'] if dirs else settings.SRC_DIR
+        self.tmp_dir = dirs['tmp'] if dirs else settings.TMP_DIR
         self.dest_dir = dirs['dest'] if dirs else settings.DEST_DIR
         for dir in [os.path.join(settings.BASE_DIR, self.src_dir), os.path.join(settings.BASE_DIR, self.dest_dir)]:
             if not os.path.isdir(dir):
@@ -74,12 +75,11 @@ class BagDiscovery:
 
     def unpack_bag(self):
         tf = tarfile.open(os.path.join(self.src_dir, self.bag_name), 'r')
-        tf.extractall(os.path.join(self.src_dir))
+        tf.extractall(os.path.join(self.tmp_dir))
         tf.close()
-        os.remove(os.path.join(self.src_dir, self.bag_name))
 
     def save_bag_data(self, bag):
-        with open(os.path.join(self.src_dir, bag.bag_identifier, "{}.json".format(bag.bag_identifier))) as json_file:
+        with open(os.path.join(self.tmp_dir, bag.bag_identifier, "{}.json".format(bag.bag_identifier))) as json_file:
             bag_data = json.load(json_file)
             bag.data = bag_data
             bag.save()
@@ -87,11 +87,11 @@ class BagDiscovery:
     def move_bag(self, bag):
         new_path = os.path.join(self.dest_dir, self.bag_name)
         shutil.move(
-            os.path.join(settings.BASE_DIR, self.src_dir, bag.bag_identifier, self.bag_name),
+            os.path.join(settings.BASE_DIR, self.tmp_dir, bag.bag_identifier, self.bag_name),
             os.path.join(settings.BASE_DIR, new_path))
         bag.bag_path = new_path
         bag.save()
-        shutil.rmtree(os.path.join(settings.BASE_DIR, self.src_dir, bag.bag_identifier))
+        shutil.rmtree(os.path.join(settings.BASE_DIR, self.tmp_dir, bag.bag_identifier))
 
     def post_to_fornax(self, bag, url):
         r = requests.post(
