@@ -6,7 +6,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from structlog import wrap_logger
 from uuid import uuid4
-from .library import BagDiscovery, isdatavalid
+from .library import BagDiscovery, CleanupRoutine, isdatavalid
 from .models import Accession, Bag
 from .serializers import AccessionSerializer, AccessionListSerializer, BagSerializer, BagListSerializer
 from ursa_major import settings
@@ -91,11 +91,25 @@ class BagDiscoveryView(APIView):
 
     def post(self, request, format=None):
         dirs = {"src": settings.TEST_SRC_DIR, "dest": settings.TEST_DEST_DIR} if request.POST.get('test') else None
-        post_service_url = request.GET.get('post_service_url')
-        post_service_url = (urllib.parse.unquote(post_service_url) if post_service_url else '')
+        url = request.GET.get('post_service_url')
+        url = (urllib.parse.unquote(url) if url else '')
 
         try:
-            discover = BagDiscovery(post_service_url, dirs).run()
+            discover = BagDiscovery(url, dirs).run()
+            return Response({"detail": discover}, status=200)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=500)
+
+
+class CleanupRoutineView(APIView):
+    """Removes a transfer from the destination directory. Accepts POST requests only."""
+
+    def post(self, request, format=None):
+        dirs = {"src": settings.TEST_SRC_DIR, "dest": settings.TEST_DEST_DIR} if request.POST.get('test') else None
+        identifier = request.data.get('identifier')
+
+        try:
+            discover = CleanupRoutine(identifier, dirs).run()
             return Response({"detail": discover}, status=200)
         except Exception as e:
             return Response({"detail": str(e)}, status=500)
