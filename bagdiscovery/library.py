@@ -25,11 +25,14 @@ class BagDiscovery:
         self.src_dir = dirs['src'] if dirs else settings.SRC_DIR
         self.tmp_dir = dirs['tmp'] if dirs else settings.TMP_DIR
         self.dest_dir = dirs['dest'] if dirs else settings.DEST_DIR
-        for dir in [os.path.join(settings.BASE_DIR, self.src_dir), os.path.join(settings.BASE_DIR, self.dest_dir)]:
+        for dir in [os.path.join(settings.BASE_DIR, self.src_dir),
+                    os.path.join(settings.BASE_DIR, self.tmp_dir),
+                    os.path.join(settings.BASE_DIR, self.dest_dir)]:
             if not os.path.isdir(dir):
                 raise BagDiscoveryException("Directory does not exist", dir)
-        if not os.access(os.path.join(settings.BASE_DIR, self.dest_dir), os.W_OK):
-            raise BagDiscoveryException("Storage directory not writable.")
+        for dir in [os.path.join(settings.BASE_DIR, self.dest_dir), os.path.join(settings.BASE_DIR, self.tmp_dir)]:
+            if not os.access(dir, os.W_OK):
+                raise BagDiscoveryException("Directory not writable", dir)
 
     def run(self):
         self.log.bind(request_id=str(uuid4()))
