@@ -1,12 +1,14 @@
 import json
 import logging
 import os
+import requests
 import shutil
 from structlog import wrap_logger
 from uuid import uuid4
 import tarfile
 
-import requests
+from bravado_core.spec import Spec
+from bravado_core.validate import validate_object
 from django.core.serializers.json import DjangoJSONEncoder
 
 from .models import Bag
@@ -123,15 +125,17 @@ class CleanupRoutine:
             return e
 
 
-def isdatavalid(data):
-    requiredKeys = ("extent_files", "url", "acquisition_type", "use_restrictions",
-                    "extent_size",  "start_date", "end_date", "process_status", "accession_number",
-                    "rights_statements", "title", "creators", "transfers", "access_restrictions",
-                    "organization", "created", "appraisal_note", "description", "resource",
-                    "language", "last_modified", "accession_date")
+class DataValidator:
+    def __init__(self, schema_url):
+        bravado_config = {
+            'validate_swagger_spec': False,
+            'validate_requests': False,
+            'validate_responses': False,
+            'use_models': True,
+        }
+        spec_dict = requests.get(schema_url).json()
+        self.spec = Spec.from_dict(spec_dict, config=bravado_config)
+        self.Accession = spec_dict['definitions']['Accession']
 
-    keylist = data.keys()
-    if (set(keylist) - set(requiredKeys)) == set() and (set(requiredKeys) - set(keylist)) == set():
-        return True
-    else:
-        return False
+    def validate(self, data):
+        validate_object(self.spec, self.Accession, data)
