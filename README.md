@@ -11,12 +11,12 @@ ursa major is part of [Project Electron](https://github.com/RockefellerArchiveCe
 Install [git](https://git-scm.com/) and clone the repository
 
     $ git clone https://github.com/RockefellerArchiveCenter/ursa_major.git
-      
+
 Install [Docker](https://store.docker.com/search?type=edition&offering=community) and run docker-compose from the root directory
 
     $ cd ursa_major
     $ docker-compose up
-    
+
 Once the application starts successfully, you should be able to access the application in your browser at `http://localhost:8005`
 
 When you're done, shut down docker-compose
@@ -28,19 +28,19 @@ Or, if you want to remove all data
     $ docker-compose down -v
 
 
-## Usage
+## Services
 
-When a POST request is sent to the `accessions` endpoint with a payload containing valid accession data, an Accession object is created as well as a Bag object for each transfer identified in the `transfers` key of that data.
+ursa major has three services, all of which are exposed via HTTP endpoints (see [Routes](#routes) section below):
 
-Bags are discovered and processed on a regular basis when the `BagStore` cron job is run or when a POST request is sent to the `bagdiscovery` endpoint. If the files for a bag do not exist (or are in the process of being transferred) that bag is skipped until the next time the routine is run.
+* Store Accessions - validates incoming data, and saves an Accession object as well as a Bag object for each transfer identified in the `transfers` key of the data delivered.
+* Bag Discovery - the main service for this application, which consists of the following steps:
+  * Checking to see if the files for the bag are in the landing directory.
+  * "Unpacking" the bag files and saving the metadata to the Bag object.
+  * Moving bag to the storage directory and updating the `bag_path` field.
+  * Notifying another service that the bag is available for further processing via a POST request.
+* Cleanup - removes files from the destination directory.
 
-Bag Discovery consists of the following steps (the `BagDiscovery` class):
-- Checking to see if the files for the bag are in the landing directory
-- "Unpacking" the bag files and saving the metadata to the Bag object
-- Moving bag to the storage directory and updating the `bag_path` field
-- Notifying Fornax that the bag is available for further processing via a POST request
-
-![Ursa Major diagram](ursa_major.png)
+![Ursa Major diagram](ursa_major-services.png)
 
 
 ### Routes
@@ -51,7 +51,9 @@ Bag Discovery consists of the following steps (the `BagDiscovery` class):
 |GET|/bags| |200|Returns a list of transfers|
 |GET|/bags/{id}| |200|Returns data about an individual transfer|
 |POST|/bagdiscovery||200|Runs the BagDiscovery routine|
+|POST|/cleanup||200|Runs the Cleanup routine|
 |GET|/status||200|Return the status of the microservice|
+|GET|/schema.json||200|Returns the OpenAPI schema for this application|
 
 
 ## Logging

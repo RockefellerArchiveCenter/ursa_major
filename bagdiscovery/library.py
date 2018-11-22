@@ -21,6 +21,7 @@ class BagDiscoveryException(Exception): pass
 
 
 class BagDiscovery:
+    """Discovers and stores bags, and delivers data to another service."""
     def __init__(self, url, dirs=None):
         self.log = logger
         self.url = url
@@ -110,6 +111,7 @@ class BagDiscovery:
 
 
 class CleanupRoutine:
+    """Removes files from the destination directory."""
     def __init__(self, identifier, dirs):
         self.identifier = identifier
         self.dest_dir = dirs['dest'] if dirs else settings.DEST_DIR
