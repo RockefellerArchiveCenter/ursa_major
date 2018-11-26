@@ -8,7 +8,6 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APIRequestFactory
 
-from .cron import BagStore
 from .models import Accession, Bag
 from .library import BagDiscovery, CleanupRoutine
 from .views import AccessionViewSet, BagDiscoveryView, CleanupRoutineView
