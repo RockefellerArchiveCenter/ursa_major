@@ -1,12 +1,14 @@
 import logging
 import urllib
+from django.db import IntegrityError
 from django.shortcuts import render
+from jsonschema.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from structlog import wrap_logger
 from uuid import uuid4
-from .library import BagDiscovery, CleanupRoutine, isdatavalid
+from .library import BagDiscovery, CleanupRoutine, DataValidator
 from .models import Accession, Bag
 from .serializers import AccessionSerializer, AccessionListSerializer, BagSerializer, BagListSerializer
 from ursa_major import settings
@@ -36,10 +38,20 @@ class AccessionViewSet(ModelViewSet):
             return AccessionListSerializer
         return AccessionSerializer
 
+    def format_field_path(self, absolute_path):
+        path = []
+        for part in absolute_path:
+            if type(part) is str:
+                path.append(part)
+            elif type(part) is int:
+                path[-1] = path[-1] + "[{}]".format(part)
+        return '.'.join(path)
+
     def create(self, request):
         self.log = logger
         self.log.bind(transaction_id=str(uuid4()), request_id=str(uuid4()))
-        if isdatavalid(request.data):
+        try:
+            DataValidator(settings.SCHEMA_URL).validate(request.data)
             accession = Accession.objects.create(
                 data=request.data
             )
@@ -52,9 +64,12 @@ class AccessionViewSet(ModelViewSet):
                 self.log.debug("Bag saved", object=transfer)
             serialized = AccessionSerializer(accession, context={'request': request})
             return Response(serialized.data)
-        else:
-            self.log.error("Invalid accession data")
-            return Response({"detail": "Invalid accession data"}, status=500)
+        except ValidationError as e:
+            return Response({"detail": "{}: {}".format(self.format_field_path(e.absolute_path), e.message)}, status=400)
+        except IntegrityError as e:
+            return Response({"detail": e.args[0]}, status=409)
+        except Exception as e:
+            return Response({"detail": e.message}, status=500)
 
 
 class BagViewSet(ModelViewSet):
