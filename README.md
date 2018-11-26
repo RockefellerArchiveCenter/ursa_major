@@ -40,7 +40,7 @@ ursa major has three services, all of which are exposed via HTTP endpoints (see 
   * Notifying another service that the bag is available for further processing via a POST request.
 * Cleanup - removes files from the destination directory.
 
-![Ursa Major diagram](ursa_major-services.png)
+![Ursa Major diagram](ursa-major-services.png)
 
 
 ### Routes
