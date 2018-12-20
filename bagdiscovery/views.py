@@ -65,7 +65,7 @@ class AccessionViewSet(ModelViewSet):
             serialized = AccessionSerializer(accession, context={'request': request})
             return Response(serialized.data)
         except ValidationError as e:
-            return Response({"detail": "{}: {}".format(self.format_field_path(e.absolute_path), e.message)}, status=400)
+            return Response({"detail": "Invalid accession data: {}: {}".format(self.format_field_path(e.absolute_path), e.message)}, status=400)
         except IntegrityError as e:
             return Response({"detail": e.args[0]}, status=409)
         except Exception as e:
