@@ -127,7 +127,7 @@ class CleanupRoutine:
                 return "Transfer {} removed.".format(self.identifier)
             return "Transfer {} was not found.".format(self.identifier)
         except Exception as e:
-            raise CleanupException(str(e))
+            raise CleanupException(e)
 
 
 class DataValidator:
