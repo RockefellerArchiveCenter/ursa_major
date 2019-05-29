@@ -18,6 +18,7 @@ logger = wrap_logger(logger=logging.getLogger(__name__))
 
 
 class BagDiscoveryException(Exception): pass
+class CleanupException(Exception): pass
 
 
 class BagDiscovery:
@@ -115,6 +116,8 @@ class CleanupRoutine:
     def __init__(self, identifier, dirs):
         self.identifier = identifier
         self.dest_dir = dirs['dest'] if dirs else settings.DEST_DIR
+        if not self.identifier:
+            raise CleanupException("No identifier submitted, unable to perform CleanupRoutine.")
 
     def run(self):
         try:
@@ -124,7 +127,7 @@ class CleanupRoutine:
                 return "Transfer {} removed.".format(self.identifier)
             return "Transfer {} was not found.".format(self.identifier)
         except Exception as e:
-            return e
+            raise CleanupException(str(e))
 
 
 class DataValidator:

@@ -69,7 +69,7 @@ class AccessionViewSet(ModelViewSet):
         except IntegrityError as e:
             return Response({"detail": e.args[0]}, status=409)
         except Exception as e:
-            return Response({"detail": e.message}, status=500)
+            return Response({"detail": str(e)}, status=500)
 
 
 class BagViewSet(ModelViewSet):
