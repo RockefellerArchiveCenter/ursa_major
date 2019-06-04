@@ -27,7 +27,7 @@ SECRET_KEY = 'de#zj*$s(y%&1xd)dv#=7=#vz_(&l_3g)%)y#sgjykx0!!is=s'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'ursa-major-web']
+ALLOWED_HOSTS = CF.ALLOWED_HOSTS
 
 
 # Application definition
@@ -77,18 +77,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ursa_major.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-#
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'HOST': 'ursa-major-db',
-        'PORT': 5432,
-    }
-}
+DATABASES = CF.DATABASES
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -128,6 +117,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = CF.STATIC_ROOT
 
 CRON_CLASSES = [
     "bagdiscovery.cron.bagStore"
