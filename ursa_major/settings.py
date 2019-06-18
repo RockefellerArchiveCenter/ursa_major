@@ -132,6 +132,11 @@ TEST_TMP_DIR = CF.TEST_TMP_DIR
 TEST_DEST_DIR = CF.TEST_DEST_DIR
 SCHEMA_URL = CF.SCHEMA_URL
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 25,
+}
+
 structlog.configure(
     processors=[
         structlog.stdlib.add_logger_name,
