@@ -40,9 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bagdiscovery',
-    'django_cron',
     'rest_framework',
-    'drf_yasg',
     'health_check',
 ]
 
