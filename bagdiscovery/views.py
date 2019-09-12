@@ -1,4 +1,3 @@
-import logging
 import urllib
 from django.db import IntegrityError
 from django.template.response import SimpleTemplateResponse
@@ -7,14 +6,11 @@ from jsonschema.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from structlog import wrap_logger
 from uuid import uuid4
 from .library import BagDiscovery, CleanupRoutine, DataValidator
 from .models import Accession, Bag
 from .serializers import AccessionSerializer, AccessionListSerializer, BagSerializer, BagListSerializer
 from ursa_major import settings
-
-logger = wrap_logger(logger=logging.getLogger(__name__))
 
 
 class AccessionViewSet(ModelViewSet):
@@ -49,14 +45,11 @@ class AccessionViewSet(ModelViewSet):
         return '.'.join(path)
 
     def create(self, request):
-        self.log = logger
-        self.log.bind(transaction_id=str(uuid4()), request_id=str(uuid4()))
         try:
             DataValidator(settings.SCHEMA_URL).validate(request.data)
             accession = Accession.objects.create(
                 data=request.data
             )
-            self.log.debug("Accession saved", object=accession)
             transfer_ids = []
             for t in request.data['transfers']:
                 transfer = Bag.objects.create(
@@ -64,7 +57,6 @@ class AccessionViewSet(ModelViewSet):
                     accession=accession,
                 )
                 transfer_ids.append(t['identifier'])
-                self.log.debug("Bag saved", object=transfer)
             return Response({"detail": "Accession stored and transfer objects created",
                              "objects": transfer_ids, "count": len(transfer_ids)}, status=201)
         except ValidationError as e:
