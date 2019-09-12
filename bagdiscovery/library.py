@@ -2,7 +2,6 @@ import json
 import os
 import requests
 import shutil
-from uuid import uuid4
 import tarfile
 
 from bravado_core.spec import Spec
