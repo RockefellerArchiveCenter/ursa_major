@@ -43,6 +43,7 @@ class BagDiscovery:
         self.log.debug("Found {} bags to process".format(len(Bag.objects.filter(bag_path__isnull=True))))
         bags = Bag.objects.filter(bag_path__isnull=True)
         bag_count = 0
+        bag_ids = []
         for bag in bags:
             self.bag_name = "{}.tar.gz".format(bag.bag_identifier)
             self.log.bind(object=bag.bag_identifier)
@@ -53,32 +54,32 @@ class BagDiscovery:
                     self.log.debug("Bag unpacked")
                 except Exception as e:
                     self.log.error("Error unpacking bag: {}".format(e))
-                    raise BagDiscoveryException("Error unpacking bag: {}".format(e))
+                    raise BagDiscoveryException("Error unpacking bag: {}".format(e), bag.bag_identifier)
                 try:
                     self.save_bag_data(bag)
                     self.log.debug("Bag data saved")
                 except Exception as e:
                     self.log.error("Error saving bag data: {}".format(e))
-                    raise BagDiscoveryException("Error saving bag data: {}".format(e))
+                    raise BagDiscoveryException("Error saving bag data: {}".format(e), bag.bag_identifier)
                 try:
                     self.move_bag(bag)
                     self.log.debug("Bag moved to storage")
                 except Exception as e:
                     self.log.error("Error moving bag: {}".format(e))
-                    raise BagDiscoveryException("Error moving bag: {}".format(e))
+                    raise BagDiscoveryException("Error moving bag: {}".format(e), bag.bag_identifier)
 
                 if self.url:
                     try:
                         self.post_to_fornax(bag, self.url)
                     except Exception as e:
-                        raise BagDiscoveryException("Error sending metadata to Fornax: {}".format(e))
+                        raise BagDiscoveryException("Error sending metadata to Fornax: {}".format(e), bag.bag_identifier)
 
                 bag_count += 1
 
             else:
                 continue
 
-        return "{} bags discovered and stored.".format(bag_count)
+        return ("All bags discovered and stored.", bag_ids, bag_count)
 
     def unpack_bag(self):
         tf = tarfile.open(os.path.join(self.src_dir, self.bag_name), 'r')
@@ -117,17 +118,17 @@ class CleanupRoutine:
         self.identifier = identifier
         self.dest_dir = dirs['dest'] if dirs else settings.DEST_DIR
         if not self.identifier:
-            raise CleanupException("No identifier submitted, unable to perform CleanupRoutine.")
+            raise CleanupException("No identifier submitted, unable to perform CleanupRoutine.", None)
 
     def run(self):
         try:
             self.filepath = "{}.tar.gz".format(os.path.join(self.dest_dir, self.identifier))
             if os.path.isfile(self.filepath):
                 os.remove(self.filepath)
-                return "Transfer {} removed.".format(self.identifier)
-            return "Transfer {} was not found.".format(self.identifier)
+                return ("Transfer removed.", self.identifier, 1)
+            return ("Transfer was not found.", self.identifier, 1)
         except Exception as e:
-            raise CleanupException(e)
+            raise CleanupException(e, self.identifier)
 
 
 class DataValidator:

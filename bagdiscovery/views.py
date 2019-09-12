@@ -1,6 +1,7 @@
 import logging
 import urllib
 from django.db import IntegrityError
+from django.template.response import SimpleTemplateResponse
 from django.shortcuts import render
 from jsonschema.exceptions import ValidationError
 from rest_framework.views import APIView
@@ -110,10 +111,10 @@ class BagDiscoveryView(APIView):
         url = (urllib.parse.unquote(url) if url else '')
 
         try:
-            discover = BagDiscovery(url, dirs).run()
-            return Response({"detail": discover}, status=200)
+            msg, objs, count = BagDiscovery(url, dirs).run()
+            return Response({"detail": msg, "objects": objs, "count": count}, status=200)
         except Exception as e:
-            return Response({"detail": str(e)}, status=500)
+            return Response({"detail": str(e.args[0]), "object": e.args[1]}, status=500)
 
 
 class CleanupRoutineView(APIView):
@@ -124,7 +125,7 @@ class CleanupRoutineView(APIView):
         identifier = request.data.get('identifier')
 
         try:
-            discover = CleanupRoutine(identifier, dirs).run()
-            return Response({"detail": discover}, status=200)
+            msg, objs, count = CleanupRoutine(identifier, dirs).run()
+            return Response({"detail": msg, "objects": objs, "count": count}, status=200)
         except Exception as e:
-            return Response({"detail": str(e)}, status=500)
+            return Response({"detail": str(e.args[0]), "object": e.args[1]}, status=500)
