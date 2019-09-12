@@ -42,7 +42,6 @@ class BagDiscovery:
         self.log.bind(request_id=str(uuid4()))
         self.log.debug("Found {} bags to process".format(len(Bag.objects.filter(bag_path__isnull=True))))
         bags = Bag.objects.filter(bag_path__isnull=True)
-        bag_count = 0
         bag_ids = []
         for bag in bags:
             self.bag_name = "{}.tar.gz".format(bag.bag_identifier)
@@ -79,7 +78,7 @@ class BagDiscovery:
             else:
                 continue
 
-        return ("All bags discovered and stored.", bag_ids, bag_count)
+        return ("All bags discovered and stored.", bag_ids)
 
     def unpack_bag(self):
         tf = tarfile.open(os.path.join(self.src_dir, self.bag_name), 'r')
@@ -125,8 +124,8 @@ class CleanupRoutine:
             self.filepath = "{}.tar.gz".format(os.path.join(self.dest_dir, self.identifier))
             if os.path.isfile(self.filepath):
                 os.remove(self.filepath)
-                return ("Transfer removed.", self.identifier, 1)
-            return ("Transfer was not found.", self.identifier, 1)
+                return ("Transfer removed.", self.identifier)
+            return ("Transfer was not found.", self.identifier)
         except Exception as e:
             raise CleanupException(e, self.identifier)
 

@@ -57,14 +57,16 @@ class AccessionViewSet(ModelViewSet):
                 data=request.data
             )
             self.log.debug("Accession saved", object=accession)
-            for transfer in request.data['transfers']:
+            transfer_ids = []
+            for t in request.data['transfers']:
                 transfer = Bag.objects.create(
-                    bag_identifier=transfer['identifier'],
+                    bag_identifier=t['identifier'],
                     accession=accession,
                 )
+                transfer_ids.append(t['identifier'])
                 self.log.debug("Bag saved", object=transfer)
-            serialized = AccessionSerializer(accession, context={'request': request})
-            return Response(serialized.data)
+            return Response({"detail": "Accession stored and transfer objects created",
+                             "objects": transfer_ids, "count": len(transfer_ids)}, status=201)
         except ValidationError as e:
             return Response({"detail": "Invalid accession data: {}: {}".format(self.format_field_path(e.absolute_path), e.message)}, status=400)
         except IntegrityError as e:
@@ -111,8 +113,8 @@ class BagDiscoveryView(APIView):
         url = (urllib.parse.unquote(url) if url else '')
 
         try:
-            msg, objs, count = BagDiscovery(url, dirs).run()
-            return Response({"detail": msg, "objects": objs, "count": count}, status=200)
+            msg, objs = BagDiscovery(url, dirs).run()
+            return Response({"detail": msg, "objects": objs, "count": len(objs)}, status=200)
         except Exception as e:
             return Response({"detail": str(e.args[0]), "object": e.args[1]}, status=500)
 
@@ -125,7 +127,7 @@ class CleanupRoutineView(APIView):
         identifier = request.data.get('identifier')
 
         try:
-            msg, objs, count = CleanupRoutine(identifier, dirs).run()
-            return Response({"detail": msg, "objects": objs, "count": count}, status=200)
+            msg, objs = CleanupRoutine(identifier, dirs).run()
+            return Response({"detail": msg, "objects": objs, "count": len(objs)}, status=200)
         except Exception as e:
             return Response({"detail": str(e.args[0]), "object": e.args[1]}, status=500)
