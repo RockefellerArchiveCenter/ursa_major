@@ -12,6 +12,15 @@ from .serializers import AccessionSerializer, AccessionListSerializer, BagSerial
 from ursa_major import settings
 
 
+def tuple_to_dict(data):
+    detail = data[0]
+    objects = data[1] if len(data) > 1 else None
+    if objects and not isinstance(objects, list):
+        objects = [objects]
+    count = len(objects) if objects else 0
+    return {"detail": detail, "objects": objects, "count": count}
+
+
 class AccessionViewSet(ModelViewSet):
     """
     retrieve:
@@ -56,14 +65,13 @@ class AccessionViewSet(ModelViewSet):
                     accession=accession,
                 )
                 transfer_ids.append(t['identifier'])
-            return Response({"detail": "Accession stored and transfer objects created",
-                             "objects": transfer_ids, "count": len(transfer_ids)}, status=201)
+            return Response(tuple_to_dict(("Accession stored and transfer objects created", transfer_ids)), status=201)
         except ValidationError as e:
-            return Response({"detail": "Invalid accession data: {}: {}".format(self.format_field_path(e.absolute_path), e.message)}, status=400)
+            return Response(tuple_to_dict("Invalid accession data: {}: {}".format(self.format_field_path(e.absolute_path), e.message)), status=400)
         except IntegrityError as e:
-            return Response({"detail": e.args[0]}, status=409)
+            return Response(tuple_to_dict(e.args), status=409)
         except Exception as e:
-            return Response({"detail": str(e)}, status=500)
+            return Response(tuple_to_dict(e.args), status=500)
 
 
 class BagViewSet(ModelViewSet):
@@ -104,10 +112,10 @@ class BagDiscoveryView(APIView):
         url = (urllib.parse.unquote(url) if url else '')
 
         try:
-            msg, objs = BagDiscovery(url, dirs).run()
-            return Response({"detail": msg, "objects": objs, "count": len(objs)}, status=200)
+            response = BagDiscovery(url, dirs).run()
+            return Response(tuple_to_dict(response), status=200)
         except Exception as e:
-            return Response({"detail": str(e.args[0]), "object": e.args[1]}, status=500)
+            return Response(tuple_to_dict(e.args), status=500)
 
 
 class CleanupRoutineView(APIView):
@@ -118,7 +126,7 @@ class CleanupRoutineView(APIView):
         identifier = request.data.get('identifier')
 
         try:
-            msg, objs = CleanupRoutine(identifier, dirs).run()
-            return Response({"detail": msg, "objects": objs, "count": len(objs)}, status=200)
+            response = CleanupRoutine(identifier, dirs).run()
+            return Response(tuple_to_dict(response), status=200)
         except Exception as e:
-            return Response({"detail": str(e.args[0]), "object": e.args[1]}, status=500)
+            return Response(tuple_to_dict(e.args), status=500)
