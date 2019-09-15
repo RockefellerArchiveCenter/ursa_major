@@ -6,7 +6,6 @@ import tarfile
 
 from bravado_core.spec import Spec
 from bravado_core.validate import validate_object
-from django.core.serializers.json import DjangoJSONEncoder
 
 from .models import Bag
 from ursa_major import settings

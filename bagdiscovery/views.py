@@ -1,11 +1,11 @@
 import urllib
+
 from django.db import IntegrityError
-from django.template.response import SimpleTemplateResponse
-from django.shortcuts import render
 from jsonschema.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
+
 from .library import BagDiscovery, CleanupRoutine, DataValidator
 from .models import Accession, Bag
 from .serializers import AccessionSerializer, AccessionListSerializer, BagSerializer, BagListSerializer
