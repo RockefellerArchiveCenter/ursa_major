@@ -1,5 +1,6 @@
 import urllib
 
+from asterism.views import prepare_response
 from django.db import IntegrityError
 from jsonschema.exceptions import ValidationError
 from rest_framework.views import APIView
@@ -10,15 +11,6 @@ from .library import BagDiscovery, CleanupRoutine, DataValidator
 from .models import Accession, Bag
 from .serializers import AccessionSerializer, AccessionListSerializer, BagSerializer, BagListSerializer
 from ursa_major import settings
-
-
-def tuple_to_dict(data):
-    detail = str(data[0])
-    objects = data[1] if len(data) > 1 else []
-    if objects and not isinstance(objects, list):
-        objects = [objects]
-    count = len(objects) if objects else 0
-    return {"detail": detail, "objects": objects, "count": count}
 
 
 class AccessionViewSet(ModelViewSet):
@@ -65,13 +57,13 @@ class AccessionViewSet(ModelViewSet):
                     accession=accession,
                 )
                 transfer_ids.append(t['identifier'])
-            return Response(tuple_to_dict(("Accession stored and transfer objects created", transfer_ids)), status=201)
+            return Response(prepare_response(("Accession stored and transfer objects created", transfer_ids)), status=201)
         except ValidationError as e:
-            return Response(tuple_to_dict("Invalid accession data: {}: {}".format(self.format_field_path(e.absolute_path), e.message)), status=400)
+            return Response(prepare_response("Invalid accession data: {}: {}".format(self.format_field_path(e.absolute_path), e.message)), status=400)
         except IntegrityError as e:
-            return Response(tuple_to_dict(e.args), status=409)
+            return Response(prepare_response(e), status=409)
         except Exception as e:
-            return Response(tuple_to_dict(e.args), status=500)
+            return Response(prepare_response(e), status=500)
 
 
 class BagViewSet(ModelViewSet):
@@ -113,9 +105,9 @@ class BagDiscoveryView(APIView):
 
         try:
             response = BagDiscovery(url, dirs).run()
-            return Response(tuple_to_dict(response), status=200)
+            return Response(prepare_response(response), status=200)
         except Exception as e:
-            return Response(tuple_to_dict(e.args), status=500)
+            return Response(prepare_response(e), status=500)
 
 
 class CleanupRoutineView(APIView):
@@ -127,6 +119,6 @@ class CleanupRoutineView(APIView):
 
         try:
             response = CleanupRoutine(identifier, dirs).run()
-            return Response(tuple_to_dict(response), status=200)
+            return Response(prepare_response(response), status=200)
         except Exception as e:
-            return Response(tuple_to_dict(e.args), status=500)
+            return Response(prepare_response(e), status=500)
