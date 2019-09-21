@@ -36,59 +36,53 @@ class BagDiscovery:
         bag_ids = []
         for bag in bags:
             self.bag_name = "{}.tar.gz".format(bag.bag_identifier)
-
             if os.path.exists(os.path.join(self.src_dir, self.bag_name)):
-                try:
-                    self.unpack_bag()
-                except Exception as e:
-                    raise BagDiscoveryException("Error unpacking bag: {}".format(e), bag.bag_identifier)
-                try:
-                    self.save_bag_data(bag)
-                except Exception as e:
-                    raise BagDiscoveryException("Error saving bag data: {}".format(e), bag.bag_identifier)
-                try:
-                    self.move_bag(bag)
-                except Exception as e:
-                    raise BagDiscoveryException("Error moving bag: {}".format(e), bag.bag_identifier)
-
+                self.unpack_bag()
+                self.save_bag_data(bag)
+                self.move_bag(bag)
                 if self.url:
-                    try:
-                        self.post_to_fornax(bag, self.url)
-                    except Exception as e:
-                        raise BagDiscoveryException("Error sending metadata to Fornax: {}".format(e), bag.bag_identifier)
+                    self.deliver_data(bag, self.url)
             else:
                 continue
-
         return ("All bags discovered and stored.", bag_ids)
 
     def unpack_bag(self):
-        tf = tarfile.open(os.path.join(self.src_dir, self.bag_name), 'r')
-        tf.extractall(os.path.join(self.tmp_dir))
-        tf.close()
+        try:
+            tf = tarfile.open(os.path.join(self.src_dir, self.bag_name), 'r')
+            tf.extractall(os.path.join(self.tmp_dir))
+            tf.close()
+        except Exception as e:
+            raise BagDiscoveryException("Error unpacking bag: {}".format(e), bag.bag_identifier)
 
     def save_bag_data(self, bag):
-        with open(os.path.join(self.tmp_dir, bag.bag_identifier, "{}.json".format(bag.bag_identifier))) as json_file:
-            bag_data = json.load(json_file)
-            bag.data = bag_data
-            bag.save()
+        try:
+            with open(os.path.join(self.tmp_dir, bag.bag_identifier, "{}.json".format(bag.bag_identifier))) as json_file:
+                bag_data = json.load(json_file)
+                bag.data = bag_data
+                bag.save()
+        except Exception as e:
+            raise BagDiscoveryException("Error saving bag data: {}".format(e), bag.bag_identifier)
 
     def move_bag(self, bag):
-        new_path = os.path.join(self.dest_dir, self.bag_name)
-        shutil.move(
-            os.path.join(settings.BASE_DIR, self.tmp_dir, bag.bag_identifier, self.bag_name),
-            os.path.join(settings.BASE_DIR, new_path))
-        bag.bag_path = new_path
-        bag.save()
-        shutil.rmtree(os.path.join(settings.BASE_DIR, self.tmp_dir, bag.bag_identifier))
+        try:
+            new_path = os.path.join(self.dest_dir, self.bag_name)
+            shutil.move(
+                os.path.join(settings.BASE_DIR, self.tmp_dir, bag.bag_identifier, self.bag_name),
+                os.path.join(settings.BASE_DIR, new_path))
+            bag.bag_path = new_path
+            bag.save()
+            shutil.rmtree(os.path.join(settings.BASE_DIR, self.tmp_dir, bag.bag_identifier))
+        except Exception as e:
+            raise BagDiscoveryException("Error moving bag: {}".format(e), bag.bag_identifier)
 
-    def post_to_fornax(self, bag, url):
+    def deliver_data(self, bag, url):
         r = requests.post(
             url,
             data=json.dumps(bag.data),
             headers={"Content-Type": "application/json"},
         )
         if r.status_code != 200:
-            raise BagDiscoveryException(r.status_code, r.reason)
+            raise BagDiscoveryException("Error sending metadata to {}: {} {}".format(url, r.status_code, r.reason))
         return True
 
 
