@@ -42,6 +42,7 @@ class BagDiscovery:
                 self.move_bag(bag)
                 if self.url:
                     self.deliver_data(bag, self.url)
+                bag_ids.append(bag.bag_identifier)
             else:
                 continue
         return ("All bags discovered and stored.", bag_ids)
