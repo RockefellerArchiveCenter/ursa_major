@@ -95,30 +95,32 @@ class BagViewSet(ModelViewSet):
         return queryset
 
 
-class BagDiscoveryView(APIView):
-    """Runs the AssembleSIPs cron job. Accepts POST requests only."""
+class BaseRoutineView(APIView):
+    """Base view for routines. Accepts POST request only."""
 
     def post(self, request, format=None):
         dirs = {"src": settings.TEST_SRC_DIR, "tmp": settings.TEST_TMP_DIR, "dest": settings.TEST_DEST_DIR} if request.POST.get('test') else None
+        data = self.get_data(request)
+
+        try:
+            response = self.routine(data, dirs).run()
+            return Response(prepare_response(response), status=200)
+        except Exception as e:
+            return Response(prepare_response(e), status=500)
+
+
+class BagDiscoveryView(BaseRoutineView):
+    """Runs the AssembleSIPs cron job. Accepts POST requests only."""
+    routine = BagDiscovery
+
+    def get_data(self, request):
         url = request.GET.get('post_service_url')
-        url = (urllib.parse.unquote(url) if url else '')
-
-        try:
-            response = BagDiscovery(url, dirs).run()
-            return Response(prepare_response(response), status=200)
-        except Exception as e:
-            return Response(prepare_response(e), status=500)
+        return urllib.parse.unquote(url) if url else ''
 
 
-class CleanupRoutineView(APIView):
+class CleanupRoutineView(BaseRoutineView):
     """Removes a transfer from the destination directory. Accepts POST requests only."""
+    routine = CleanupRoutine
 
-    def post(self, request, format=None):
-        dirs = {"src": settings.TEST_SRC_DIR, "dest": settings.TEST_DEST_DIR} if request.POST.get('test') else None
-        identifier = request.data.get('identifier')
-
-        try:
-            response = CleanupRoutine(identifier, dirs).run()
-            return Response(prepare_response(response), status=200)
-        except Exception as e:
-            return Response(prepare_response(e), status=500)
+    def get_data(self, request):
+        return request.data.get('identifier')
