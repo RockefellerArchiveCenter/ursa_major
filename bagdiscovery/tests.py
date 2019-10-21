@@ -50,7 +50,7 @@ class BagTestCase(TestCase):
                     accession_data = json.load(json_file)
                     request = self.factory.post(reverse('accession-list'), accession_data, format='json')
                     response = AccessionViewSet.as_view(actions={"post": "create"})(request)
-                    self.assertEqual(response.status_code, 200, "Wrong HTTP code")
+                    self.assertEqual(response.status_code, 201, "Wrong HTTP code")
                     accession_count += 1
                     transfer_count += len(accession_data['transfers'])
             self.assertEqual(len(Accession.objects.all()), accession_count, "Wrong number of accessions created")
@@ -84,7 +84,7 @@ class BagTestCase(TestCase):
 
     def schema(self):
         print('*** Getting schema view ***')
-        schema = self.client.get(reverse('schema-json', kwargs={"format": ".json"}))
+        schema = self.client.get(reverse('schema'))
         self.assertEqual(schema.status_code, 200, "Wrong HTTP code")
 
     def health_check(self):

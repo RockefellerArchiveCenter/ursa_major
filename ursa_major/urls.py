@@ -19,23 +19,17 @@ from django.urls import include
 from bagdiscovery.views import AccessionViewSet, BagViewSet, BagDiscoveryView, CleanupRoutineView
 from bagdiscovery.models import Bag
 from rest_framework import routers
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
+from rest_framework.schemas import get_schema_view
 
 router = routers.DefaultRouter()
 router.register(r'bags', BagViewSet, 'bag')
 router.register(r'accessions', AccessionViewSet, 'accession')
+
 schema_view = get_schema_view(
-   openapi.Info(
-      title="Ursa Major API",
-      default_version='v1',
-      description="API for Ursa Major",
-      contact=openapi.Contact(email="archive@rockarch.org"),
-      license=openapi.License(name="MIT License"),
-   ),
-   validators=['flex', 'ssv'],
-   public=False,
+  title="Ursa Major API",
+  description="Endpoints for Ursa Major microservice application.",
 )
+
 
 urlpatterns = [
     url(r'^', include(router.urls)),
@@ -43,5 +37,5 @@ urlpatterns = [
     url(r'^bagdiscovery/', BagDiscoveryView.as_view(), name="bagdiscovery"),
     url(r'^cleanup/', CleanupRoutineView.as_view(), name="cleanup"),
     url(r'^status/', include('health_check.api.urls')),
-    url(r'^schema(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=None), name='schema-json'),
+    url(r'^schema/', schema_view, name='schema'),
 ]

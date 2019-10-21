@@ -1,19 +1,16 @@
-import logging
 import urllib
+
+from asterism.views import prepare_response
 from django.db import IntegrityError
-from django.shortcuts import render
 from jsonschema.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from structlog import wrap_logger
-from uuid import uuid4
+
 from .library import BagDiscovery, CleanupRoutine, DataValidator
 from .models import Accession, Bag
 from .serializers import AccessionSerializer, AccessionListSerializer, BagSerializer, BagListSerializer
 from ursa_major import settings
-
-logger = wrap_logger(logger=logging.getLogger(__name__))
 
 
 class AccessionViewSet(ModelViewSet):
@@ -48,28 +45,25 @@ class AccessionViewSet(ModelViewSet):
         return '.'.join(path)
 
     def create(self, request):
-        self.log = logger
-        self.log.bind(transaction_id=str(uuid4()), request_id=str(uuid4()))
         try:
             DataValidator(settings.SCHEMA_URL).validate(request.data)
             accession = Accession.objects.create(
                 data=request.data
             )
-            self.log.debug("Accession saved", object=accession)
-            for transfer in request.data['transfers']:
+            transfer_ids = []
+            for t in request.data['transfers']:
                 transfer = Bag.objects.create(
-                    bag_identifier=transfer['identifier'],
+                    bag_identifier=t['identifier'],
                     accession=accession,
                 )
-                self.log.debug("Bag saved", object=transfer)
-            serialized = AccessionSerializer(accession, context={'request': request})
-            return Response(serialized.data)
+                transfer_ids.append(t['identifier'])
+            return Response(prepare_response(("Accession stored and transfer objects created", transfer_ids)), status=201)
         except ValidationError as e:
-            return Response({"detail": "Invalid accession data: {}: {}".format(self.format_field_path(e.absolute_path), e.message)}, status=400)
+            return Response(prepare_response("Invalid accession data: {}: {}".format(self.format_field_path(e.absolute_path), e.message)), status=400)
         except IntegrityError as e:
-            return Response({"detail": e.args[0]}, status=409)
+            return Response(prepare_response(e), status=409)
         except Exception as e:
-            return Response({"detail": str(e)}, status=500)
+            return Response(prepare_response(e), status=500)
 
 
 class BagViewSet(ModelViewSet):
@@ -101,30 +95,32 @@ class BagViewSet(ModelViewSet):
         return queryset
 
 
-class BagDiscoveryView(APIView):
-    """Runs the AssembleSIPs cron job. Accepts POST requests only."""
+class BaseRoutineView(APIView):
+    """Base view for routines. Accepts POST request only."""
 
     def post(self, request, format=None):
         dirs = {"src": settings.TEST_SRC_DIR, "tmp": settings.TEST_TMP_DIR, "dest": settings.TEST_DEST_DIR} if request.POST.get('test') else None
+        data = self.get_data(request)
+
+        try:
+            response = self.routine(data, dirs).run()
+            return Response(prepare_response(response), status=200)
+        except Exception as e:
+            return Response(prepare_response(e), status=500)
+
+
+class BagDiscoveryView(BaseRoutineView):
+    """Runs the AssembleSIPs cron job. Accepts POST requests only."""
+    routine = BagDiscovery
+
+    def get_data(self, request):
         url = request.GET.get('post_service_url')
-        url = (urllib.parse.unquote(url) if url else '')
-
-        try:
-            discover = BagDiscovery(url, dirs).run()
-            return Response({"detail": discover}, status=200)
-        except Exception as e:
-            return Response({"detail": str(e)}, status=500)
+        return urllib.parse.unquote(url) if url else ''
 
 
-class CleanupRoutineView(APIView):
+class CleanupRoutineView(BaseRoutineView):
     """Removes a transfer from the destination directory. Accepts POST requests only."""
+    routine = CleanupRoutine
 
-    def post(self, request, format=None):
-        dirs = {"src": settings.TEST_SRC_DIR, "dest": settings.TEST_DEST_DIR} if request.POST.get('test') else None
-        identifier = request.data.get('identifier')
-
-        try:
-            discover = CleanupRoutine(identifier, dirs).run()
-            return Response({"detail": discover}, status=200)
-        except Exception as e:
-            return Response({"detail": str(e)}, status=500)
+    def get_data(self, request):
+        return request.data.get('identifier')
