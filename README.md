@@ -5,6 +5,7 @@ A microservice to discover and store bags.
 ursa major is part of [Project Electron](https://github.com/RockefellerArchiveCenter/project_electron), an initiative to build sustainable, open and user-centered infrastructure for the archival management of digital records at the [Rockefeller Archive Center](http://rockarch.org/).
 
 [![Build Status](https://travis-ci.org/RockefellerArchiveCenter/ursa_major.svg?branch=master)](https://travis-ci.org/RockefellerArchiveCenter/ursa_major)
+![GitHub (pre-)release](https://img.shields.io/github/release/RockefellerArchiveCenter/ursa_major/all.svg)
 
 ## Setup
 
