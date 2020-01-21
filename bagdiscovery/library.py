@@ -1,11 +1,9 @@
 import json
+import jsonschema
 import os
 import requests
 import shutil
 import tarfile
-
-from bravado_core.spec import Spec
-from bravado_core.validate import validate_object
 
 from .models import Bag
 from ursa_major import settings
@@ -13,6 +11,12 @@ from ursa_major import settings
 
 class BagDiscoveryException(Exception): pass
 class CleanupException(Exception): pass
+
+
+def validate_data(data):
+    with open(os.path.join(settings.BASE_DIR, settings.SCHEMA_PATH), "r") as jf:
+        schema = json.load(jf)
+        jsonschema.validate(instance=data, schema=schema)
 
 
 class BagDiscovery:
@@ -59,8 +63,11 @@ class BagDiscovery:
         try:
             with open(os.path.join(self.tmp_dir, bag.bag_identifier, "{}.json".format(bag.bag_identifier))) as json_file:
                 bag_data = json.load(json_file)
+                validate_data(bag_data)
                 bag.data = bag_data
                 bag.save()
+        except jsonschema.exceptions.ValidationError as e:
+            raise BagDiscoveryException("Invalid bag data: {}: {}".format(list(e.path), e.message))
         except Exception as e:
             raise BagDiscoveryException("Error saving bag data: {}".format(e), bag.bag_identifier)
 
@@ -104,19 +111,3 @@ class CleanupRoutine:
             return ("Transfer was not found.", self.identifier)
         except Exception as e:
             raise CleanupException(e, self.identifier)
-
-
-class DataValidator:
-    def __init__(self, schema_url):
-        bravado_config = {
-            'validate_swagger_spec': False,
-            'validate_requests': False,
-            'validate_responses': False,
-            'use_models': True,
-        }
-        spec_dict = requests.get(schema_url).json()
-        self.spec = Spec.from_dict(spec_dict, config=bravado_config)
-        self.Accession = spec_dict['definitions']['Accession']
-
-    def validate(self, data):
-        validate_object(self.spec, self.Accession, data)
