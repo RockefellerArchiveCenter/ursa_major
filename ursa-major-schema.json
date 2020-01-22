@@ -59,7 +59,7 @@
 			"$id": "#/definitions/bag",
 			"type": "object",
 			"title": "Bag",
-			"required": ["organization", "bag_it_name", "identifier", "origin"],
+			"required": ["bag_it_name", "identifier", "origin"],
 			"properties": {
 				"url": {
 					"type": "string"
