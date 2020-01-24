@@ -7,7 +7,13 @@
 			"$ref": "#/definitions/accession"
 		},
 		{
-			"$ref": "#/definitions/bag"
+			"$ref": "#/definitions/aurora_bag"
+		},
+		{
+			"$ref": "#/definitions/digitization_bag"
+		},
+		{
+			"$ref": "#/definitions/legacy_digital_bag"
 		}
 	],
 	"definitions": {
@@ -55,11 +61,11 @@
 				}
 			}
 		},
-		"bag": {
-			"$id": "#/definitions/bag",
+		"aurora_bag": {
+			"$id": "#/definitions/aurora_bag",
 			"type": "object",
 			"title": "Bag",
-			"required": ["bag_it_name", "identifier", "origin"],
+			"required": ["organization", "bag_it_name", "identifier", "origin"],
 			"properties": {
 				"url": {
 					"type": "string"
@@ -71,7 +77,8 @@
 					"type": "string"
 				},
 				"origin": {
-					"type": "string"
+					"type": "string",
+					"enum": ["aurora"]
 				},
 				"bag_it_name": {
 					"type": "string",
@@ -277,6 +284,156 @@
 				"modified_time": {
 					"type": "string",
 					"format": "date-time"
+				}
+			}
+		},
+		"digitization_bag": {
+			"$id": "#/definitions/digitization_bag",
+			"type": "object",
+			"title": "Bag",
+			"required": ["identifier", "origin", "rights_statements"],
+			"properties": {
+				"identifier": {
+					"type": "string"
+				},
+				"origin": {
+					"type": "string",
+					"enum": ["digitization"]
+				},
+				"rights_statements": {
+					"type": "array",
+					"items": {
+						"properties": {
+							"rights_basis": {
+								"type": "string"
+							},
+							"determination_date": {
+								"type": ["string", "null"]
+							},
+							"jurisdiction": {
+								"type": ["string", "null"]
+							},
+							"start_date": {
+								"type": "string"
+							},
+							"end_date": {
+								"type": "string"
+							},
+							"note": {
+								"type": "string"
+							},
+							"status": {
+								"type": ["string", "null"]
+							},
+							"terms": {
+								"type": ["string", "null"]
+							},
+							"citation": {
+								"type": ["string", "null"]
+							},
+							"other_rights_basis": {
+								"type": ["string", "null"]
+							},
+							"rights_granted": {
+								"type": "array",
+								"items": {
+									"properties": {
+										"act": {
+											"enum": ["publish", "disseminate", "replicate", "migrate", "modify", "use", "delete"]
+										},
+										"start_date": {
+											"type": ["string", "null"],
+											"format": "date"
+										},
+										"end_date": {
+											"type": "string"
+										},
+										"note": {
+											"type": "string"
+										},
+										"restriction": {
+											"enum": ["allow", "disallow", "conditional"]
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"legacy_digital_bag": {
+			"$id": "#/definitions/legacy_digital_bag",
+			"type": "object",
+			"title": "Bag",
+			"required": ["identifier", "origin", "rights_statements"],
+			"properties": {
+				"identifier": {
+					"type": "string"
+				},
+				"origin": {
+					"type": "string",
+					"enum": ["legacy_digital"]
+				},
+				"rights_statements": {
+					"type": "array",
+					"items": {
+						"properties": {
+							"rights_basis": {
+								"type": "string"
+							},
+							"determination_date": {
+								"type": ["string", "null"]
+							},
+							"jurisdiction": {
+								"type": ["string", "null"]
+							},
+							"start_date": {
+								"type": "string"
+							},
+							"end_date": {
+								"type": "string"
+							},
+							"note": {
+								"type": "string"
+							},
+							"status": {
+								"type": ["string", "null"]
+							},
+							"terms": {
+								"type": ["string", "null"]
+							},
+							"citation": {
+								"type": ["string", "null"]
+							},
+							"other_rights_basis": {
+								"type": ["string", "null"]
+							},
+							"rights_granted": {
+								"type": "array",
+								"items": {
+									"properties": {
+										"act": {
+											"enum": ["publish", "disseminate", "replicate", "migrate", "modify", "use", "delete"]
+										},
+										"start_date": {
+											"type": ["string", "null"],
+											"format": "date"
+										},
+										"end_date": {
+											"type": "string"
+										},
+										"note": {
+											"type": "string"
+										},
+										"restriction": {
+											"enum": ["allow", "disallow", "conditional"]
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		}
