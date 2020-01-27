@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 
-from .library import BagDiscovery, CleanupRoutine, DataValidator
+from .library import BagDiscovery, CleanupRoutine, validate_data
 from .models import Accession, Bag
 from .serializers import AccessionSerializer, AccessionListSerializer, BagSerializer, BagListSerializer
 from ursa_major import settings
@@ -35,18 +35,9 @@ class AccessionViewSet(ModelViewSet):
             return AccessionListSerializer
         return AccessionSerializer
 
-    def format_field_path(self, absolute_path):
-        path = []
-        for part in absolute_path:
-            if type(part) is str:
-                path.append(part)
-            elif type(part) is int:
-                path[-1] = path[-1] + "[{}]".format(part)
-        return '.'.join(path)
-
     def create(self, request):
         try:
-            DataValidator(settings.SCHEMA_URL).validate(request.data)
+            validate_data(request.data)
             accession = Accession.objects.create(
                 data=request.data
             )
@@ -59,7 +50,7 @@ class AccessionViewSet(ModelViewSet):
                 transfer_ids.append(t['identifier'])
             return Response(prepare_response(("Accession stored and transfer objects created", transfer_ids)), status=201)
         except ValidationError as e:
-            return Response(prepare_response("Invalid accession data: {}: {}".format(self.format_field_path(e.absolute_path), e.message)), status=400)
+            return Response(prepare_response("Invalid accession data: {}: {}".format(list(e.path), e.message)), status=400)
         except IntegrityError as e:
             return Response(prepare_response(e), status=409)
         except Exception as e:
