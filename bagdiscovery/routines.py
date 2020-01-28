@@ -9,8 +9,12 @@ from .models import Bag
 from ursa_major import settings
 
 
-class BagDiscoveryException(Exception): pass
-class CleanupException(Exception): pass
+class BagDiscoveryException(Exception):
+    pass
+
+
+class CleanupException(Exception):
+    pass
 
 
 def validate_data(data):
@@ -57,7 +61,7 @@ class BagDiscovery:
             tf.extractall(os.path.join(self.tmp_dir))
             tf.close()
         except Exception as e:
-            raise BagDiscoveryException("Error unpacking bag: {}".format(e), bag.bag_identifier)
+            raise BagDiscoveryException("Error unpacking bag: {}".format(e), self.bag_name)
 
     def save_bag_data(self, bag):
         try:

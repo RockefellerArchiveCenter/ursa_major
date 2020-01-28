@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 
-from .library import BagDiscovery, CleanupRoutine, validate_data
+from .routines import BagDiscovery, CleanupRoutine, validate_data
 from .models import Accession, Bag
 from .serializers import AccessionSerializer, AccessionListSerializer, BagSerializer, BagListSerializer
 from ursa_major import settings
@@ -43,7 +43,7 @@ class AccessionViewSet(ModelViewSet):
             )
             transfer_ids = []
             for t in request.data['transfers']:
-                transfer = Bag.objects.create(
+                Bag.objects.create(
                     bag_identifier=t['identifier'],
                     accession=accession,
                 )

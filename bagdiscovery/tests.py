@@ -1,6 +1,6 @@
 import json
 from os.path import isdir, join
-from os import makedirs, listdir, remove
+from os import makedirs, listdir
 import shutil
 import vcr
 
@@ -9,7 +9,7 @@ from django.urls import reverse
 from rest_framework.test import APIRequestFactory
 
 from .models import Accession, Bag
-from .library import BagDiscovery, CleanupRoutine
+from .routines import BagDiscovery, CleanupRoutine
 from .views import AccessionViewSet, BagDiscoveryView, CleanupRoutineView
 from ursa_major import settings
 

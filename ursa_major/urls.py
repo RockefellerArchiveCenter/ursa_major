@@ -17,7 +17,6 @@ from django.contrib import admin
 from django.conf.urls import url
 from django.urls import include
 from bagdiscovery.views import AccessionViewSet, BagViewSet, BagDiscoveryView, CleanupRoutineView
-from bagdiscovery.models import Bag
 from rest_framework import routers
 from rest_framework.schemas import get_schema_view
 
