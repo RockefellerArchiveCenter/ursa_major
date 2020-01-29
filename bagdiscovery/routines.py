@@ -25,6 +25,7 @@ def validate_data(data):
 
 class BagDiscovery:
     """Discovers and stores bags, and delivers data to another service."""
+
     def __init__(self, url, dirs=None):
         self.url = url
         self.src_dir = dirs['src'] if dirs else settings.SRC_DIR
@@ -35,7 +36,8 @@ class BagDiscovery:
                     os.path.join(settings.BASE_DIR, self.dest_dir)]:
             if not os.path.isdir(dir):
                 raise BagDiscoveryException("Directory does not exist", dir)
-        for dir in [os.path.join(settings.BASE_DIR, self.dest_dir), os.path.join(settings.BASE_DIR, self.tmp_dir)]:
+        for dir in [os.path.join(settings.BASE_DIR, self.dest_dir), os.path.join(
+                settings.BASE_DIR, self.tmp_dir)]:
             if not os.access(dir, os.W_OK):
                 raise BagDiscoveryException("Directory not writable", dir)
 
@@ -61,7 +63,8 @@ class BagDiscovery:
             tf.extractall(os.path.join(self.tmp_dir))
             tf.close()
         except Exception as e:
-            raise BagDiscoveryException("Error unpacking bag: {}".format(e), self.bag_name)
+            raise BagDiscoveryException(
+                "Error unpacking bag: {}".format(e), self.bag_name)
 
     def save_bag_data(self, bag):
         try:
@@ -71,44 +74,67 @@ class BagDiscovery:
                 bag.data = bag_data
                 bag.save()
         except jsonschema.exceptions.ValidationError as e:
-            raise BagDiscoveryException("Invalid bag data: {}: {}".format(list(e.path), e.message))
+            raise BagDiscoveryException(
+                "Invalid bag data: {}: {}".format(
+                    list(
+                        e.path), e.message))
         except Exception as e:
-            raise BagDiscoveryException("Error saving bag data: {}".format(e), bag.bag_identifier)
+            raise BagDiscoveryException(
+                "Error saving bag data: {}".format(e),
+                bag.bag_identifier)
 
     def move_bag(self, bag):
         try:
             new_path = os.path.join(self.dest_dir, self.bag_name)
             shutil.move(
-                os.path.join(settings.BASE_DIR, self.tmp_dir, bag.bag_identifier, self.bag_name),
+                os.path.join(
+                    settings.BASE_DIR,
+                    self.tmp_dir,
+                    bag.bag_identifier,
+                    self.bag_name),
                 os.path.join(settings.BASE_DIR, new_path))
             bag.bag_path = new_path
             bag.save()
-            shutil.rmtree(os.path.join(settings.BASE_DIR, self.tmp_dir, bag.bag_identifier))
+            shutil.rmtree(
+                os.path.join(
+                    settings.BASE_DIR,
+                    self.tmp_dir,
+                    bag.bag_identifier))
         except Exception as e:
-            raise BagDiscoveryException("Error moving bag: {}".format(e), bag.bag_identifier)
+            raise BagDiscoveryException(
+                "Error moving bag: {}".format(e),
+                bag.bag_identifier)
 
     def deliver_data(self, bag, url):
         r = requests.post(
             url,
-            data=json.dumps(bag.data),
+            data={
+                "bag_data": json.dumps(bag.data),
+                "origin": bag.origin,
+                "identifier": bag.bag_identifier},
             headers={"Content-Type": "application/json"},
         )
         if r.status_code != 200:
-            raise BagDiscoveryException("Error sending metadata to {}: {} {}".format(url, r.status_code, r.reason))
+            raise BagDiscoveryException(
+                "Error sending metadata to {}: {} {}".format(
+                    url, r.status_code, r.reason))
         return True
 
 
 class CleanupRoutine:
     """Removes files from the destination directory."""
+
     def __init__(self, identifier, dirs):
         self.identifier = identifier
         self.dest_dir = dirs['dest'] if dirs else settings.DEST_DIR
         if not self.identifier:
-            raise CleanupException("No identifier submitted, unable to perform CleanupRoutine.", None)
+            raise CleanupException(
+                "No identifier submitted, unable to perform CleanupRoutine.", None)
 
     def run(self):
         try:
-            self.filepath = "{}.tar.gz".format(os.path.join(self.dest_dir, self.identifier))
+            self.filepath = "{}.tar.gz".format(
+                os.path.join(self.dest_dir, self.identifier))
             if os.path.isfile(self.filepath):
                 os.remove(self.filepath)
                 return ("Transfer removed.", self.identifier)
