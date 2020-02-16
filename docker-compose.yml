@@ -12,8 +12,6 @@ services:
     entrypoint: /code/entrypoint.sh
     volumes:
       - .:/code
-      - ~/.pe-shared/aurora-ursamajor:/src/:ro
-      - ~/.pe-shared/ursamajor-fornax:/dest/
     ports:
       - "8005:8005"
     depends_on:

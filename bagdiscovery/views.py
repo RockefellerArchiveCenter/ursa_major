@@ -90,11 +90,10 @@ class BaseRoutineView(APIView):
     """Base view for routines. Accepts POST request only."""
 
     def post(self, request, format=None):
-        dirs = {"src": settings.TEST_SRC_DIR, "tmp": settings.TEST_TMP_DIR, "dest": settings.TEST_DEST_DIR} if request.POST.get('test') else None
         data = self.get_data(request)
 
         try:
-            response = self.routine(data, dirs).run()
+            response = self.routine(data).run()
             return Response(prepare_response(response), status=200)
         except Exception as e:
             return Response(prepare_response(e), status=500)

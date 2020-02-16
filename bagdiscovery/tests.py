@@ -30,9 +30,9 @@ class BagTestCase(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.src_dir = settings.TEST_SRC_DIR
-        self.tmp_dir = settings.TEST_TMP_DIR
-        self.dest_dir = settings.TEST_DEST_DIR
+        self.src_dir = settings.SRC_DIR
+        self.tmp_dir = settings.TMP_DIR
+        self.dest_dir = settings.DEST_DIR
         for d in [self.src_dir, self.tmp_dir, self.dest_dir]:
             if isdir(d):
                 shutil.rmtree(d)
@@ -57,14 +57,14 @@ class BagTestCase(TestCase):
 
     def process_bags(self):
         with process_vcr.use_cassette('process_bags.json'):
-            processor = BagDiscovery('http://fornax-web:8003/sips/', dirs={"src": self.src_dir, "tmp": self.tmp_dir, "dest": self.dest_dir}).run()
+            processor = BagDiscovery('http://fornax-web:8003/sips/').run()
             self.assertTrue(processor)
             for bag in Bag.objects.all():
                 self.assertTrue(bag.data)
 
     def cleanup_bags(self):
         for bag in Bag.objects.all():
-            CleanupRoutine(bag.bag_identifier, dirs={"dest": self.dest_dir}).run()
+            CleanupRoutine(bag.bag_identifier).run()
         self.assertEqual(0, len(listdir(self.dest_dir)))
 
     def run_view(self):

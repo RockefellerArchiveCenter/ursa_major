@@ -26,11 +26,11 @@ def validate_data(data):
 class BagDiscovery:
     """Discovers and stores bags, and delivers data to another service."""
 
-    def __init__(self, url, dirs=None):
+    def __init__(self, url):
         self.url = url
-        self.src_dir = dirs['src'] if dirs else settings.SRC_DIR
-        self.tmp_dir = dirs['tmp'] if dirs else settings.TMP_DIR
-        self.dest_dir = dirs['dest'] if dirs else settings.DEST_DIR
+        self.src_dir = settings.SRC_DIR
+        self.tmp_dir = settings.TMP_DIR
+        self.dest_dir = settings.DEST_DIR
         for dir in [os.path.join(settings.BASE_DIR, self.src_dir),
                     os.path.join(settings.BASE_DIR, self.tmp_dir),
                     os.path.join(settings.BASE_DIR, self.dest_dir)]:
@@ -124,9 +124,8 @@ class BagDiscovery:
 class CleanupRoutine:
     """Removes files from the destination directory."""
 
-    def __init__(self, identifier, dirs):
+    def __init__(self, identifier):
         self.identifier = identifier
-        self.dest_dir = dirs['dest'] if dirs else settings.DEST_DIR
         if not self.identifier:
             raise CleanupException(
                 "No identifier submitted, unable to perform CleanupRoutine.", None)
@@ -134,7 +133,7 @@ class CleanupRoutine:
     def run(self):
         try:
             self.filepath = "{}.tar.gz".format(
-                os.path.join(self.dest_dir, self.identifier))
+                os.path.join(settings.DEST_DIR, self.identifier))
             if os.path.isfile(self.filepath):
                 os.remove(self.filepath)
                 return ("Transfer removed.", self.identifier)
