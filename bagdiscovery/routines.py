@@ -26,8 +26,7 @@ def validate_data(data):
 class BagDiscovery:
     """Discovers and stores bags, and delivers data to another service."""
 
-    def __init__(self, url):
-        self.url = url
+    def __init__(self):
         self.src_dir = settings.SRC_DIR
         self.tmp_dir = settings.TMP_DIR
         self.dest_dir = settings.DEST_DIR
@@ -42,20 +41,19 @@ class BagDiscovery:
                 raise BagDiscoveryException("Directory not writable", dir)
 
     def run(self):
-        bags = Bag.objects.filter(bag_path__isnull=True)
         bag_ids = []
-        for bag in bags:
+        for bag in Bag.objects.filter(process_status=Bag.CREATED):
             self.bag_name = "{}.tar.gz".format(bag.bag_identifier)
             if os.path.exists(os.path.join(self.src_dir, self.bag_name)):
                 self.unpack_bag()
                 self.save_bag_data(bag)
                 self.move_bag(bag)
-                if self.url:
-                    self.deliver_data(bag, self.url)
                 bag_ids.append(bag.bag_identifier)
+                bag.process_status = bag.DISCOVERED
+                bag.save()
             else:
                 continue
-        return ("All bags discovered and stored.", bag_ids)
+        return ("All bags discovered.", bag_ids)
 
     def unpack_bag(self):
         try:
@@ -105,6 +103,23 @@ class BagDiscovery:
                 "Error moving bag: {}".format(e),
                 bag.bag_identifier)
 
+
+class BagDelivery:
+
+    def run(self):
+        bag_ids = []
+        for bag in Bag.objects.filter(process_status=Bag.DISCOVERED):
+            try:
+                self.deliver_data(bag, settings.DELIVERY_URL)
+                bag_ids.append(bag.bag_identifier)
+                bag.process_status = Bag.DELIVERED
+                bag.save()
+            except Exception as e:
+                raise BagDiscoveryException(
+                    "Error sending metadata to {}: {} {}".format(
+                        settings.DELIVERY_URL, e))
+        return ("All bag data delivered.", bag_ids)
+
     def deliver_data(self, bag, url):
         r = requests.post(
             url,
@@ -114,11 +129,7 @@ class BagDiscovery:
                 "identifier": bag.bag_identifier},
             headers={"Content-Type": "application/json"},
         )
-        if r.status_code != 200:
-            raise BagDiscoveryException(
-                "Error sending metadata to {}: {} {}".format(
-                    url, r.status_code, r.reason))
-        return True
+        r.raise_for_status()
 
 
 class CleanupRoutine:

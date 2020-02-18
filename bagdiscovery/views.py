@@ -1,5 +1,3 @@
-import urllib
-
 from asterism.views import prepare_response
 from django.db import IntegrityError
 from jsonschema.exceptions import ValidationError
@@ -7,10 +5,13 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 
-from .routines import BagDiscovery, CleanupRoutine, validate_data
+from .routines import BagDiscovery, BagDelivery, CleanupRoutine, validate_data
 from .models import Accession, Bag
-from .serializers import AccessionSerializer, AccessionListSerializer, BagSerializer, BagListSerializer
-from ursa_major import settings
+from .serializers import (
+    AccessionSerializer,
+    AccessionListSerializer,
+    BagSerializer,
+    BagListSerializer)
 
 
 class AccessionViewSet(ModelViewSet):
@@ -22,7 +23,8 @@ class AccessionViewSet(ModelViewSet):
     Return paginated data about all accessions.
 
     create:
-    Create a new accession. Also creates Bags for each transfer identified in the `transfers` key.
+    Create a new accession. Also creates Bags for each transfer identified in
+    the `transfers` key.
 
     update:
     Update an existing accession, identified by a primary key.
@@ -46,11 +48,16 @@ class AccessionViewSet(ModelViewSet):
                 Bag.objects.create(
                     bag_identifier=t['identifier'],
                     accession=accession,
+                    process_status=Bag.CREATED,
                 )
                 transfer_ids.append(t['identifier'])
-            return Response(prepare_response(("Accession stored and transfer objects created", transfer_ids)), status=201)
+            return Response(prepare_response(
+                ("Accession stored and transfer objects created", transfer_ids)),
+                status=201)
         except ValidationError as e:
-            return Response(prepare_response("Invalid accession data: {}: {}".format(list(e.path), e.message)), status=400)
+            return Response(prepare_response(
+                "Invalid accession data: {}: {}".format(list(e.path), e.message)),
+                status=400)
         except IntegrityError as e:
             return Response(prepare_response(e), status=409)
         except Exception as e:
@@ -60,7 +67,8 @@ class AccessionViewSet(ModelViewSet):
 class BagViewSet(ModelViewSet):
     """
     retrieve:
-    Return data about a bag, identified by a primary key. Accepts the parameter `id`, which will return all bags matching that id.
+    Return data about a bag, identified by a primary key. Accepts the parameter
+    `id`, which will return all bags matching that id.
 
     list:
     Return paginated data about all bags.
@@ -90,27 +98,33 @@ class BaseRoutineView(APIView):
     """Base view for routines. Accepts POST request only."""
 
     def post(self, request, format=None):
-        data = self.get_data(request)
-
         try:
-            response = self.routine(data).run()
+            response = self.routine().run()
             return Response(prepare_response(response), status=200)
         except Exception as e:
             return Response(prepare_response(e), status=500)
 
 
 class BagDiscoveryView(BaseRoutineView):
-    """Runs the AssembleSIPs cron job. Accepts POST requests only."""
+    """Discovers transfers delivered in accessions and prepares them for
+    delivery to the next service. Accepts POST requests only."""
     routine = BagDiscovery
 
-    def get_data(self, request):
-        url = request.GET.get('post_service_url')
-        return urllib.parse.unquote(url) if url else ''
+
+class BagDeliveryView(BaseRoutineView):
+    """Runs the AssembleSIPs cron job. Accepts POST requests only."""
+    routine = BagDelivery
 
 
-class CleanupRoutineView(BaseRoutineView):
-    """Removes a transfer from the destination directory. Accepts POST requests only."""
+class CleanupRoutineView(APIView):
+    """Removes a transfer from the destination directory. Accepts POST requests
+    only."""
     routine = CleanupRoutine
 
-    def get_data(self, request):
-        return request.data.get('identifier')
+    def post(self, request, format=None):
+        try:
+            identifier = request.data.get('identifier')
+            response = CleanupRoutine(identifier).run()
+            return Response(prepare_response(response), status=200)
+        except Exception as e:
+            return Response(prepare_response(e), status=500)

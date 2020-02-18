@@ -127,6 +127,8 @@ DEST_DIR = CF.DEST_DIR
 
 SCHEMA_PATH = CF.SCHEMA_PATH
 
+DELIVERY_URL = CF.DELIVERY_URL
+
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 25,

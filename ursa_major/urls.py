@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.conf.urls import url
 from django.urls import include
-from bagdiscovery.views import AccessionViewSet, BagViewSet, BagDiscoveryView, CleanupRoutineView
+from bagdiscovery.views import AccessionViewSet, BagViewSet, BagDiscoveryView, BagDeliveryView, CleanupRoutineView
 from rest_framework import routers
 from rest_framework.schemas import get_schema_view
 
@@ -34,6 +34,7 @@ urlpatterns = [
     url(r'^', include(router.urls)),
     url('admin/', admin.site.urls),
     url(r'^bagdiscovery/', BagDiscoveryView.as_view(), name="bagdiscovery"),
+    url(r'^bagdelivery/', BagDeliveryView.as_view(), name="bagdelivery"),
     url(r'^cleanup/', CleanupRoutineView.as_view(), name="cleanup"),
     url(r'^status/', include('health_check.api.urls')),
     url(r'^schema/', schema_view, name='schema'),
