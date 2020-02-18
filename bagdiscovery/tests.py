@@ -9,8 +9,8 @@ from django.urls import reverse
 from rest_framework.test import APIRequestFactory
 
 from .models import Accession, Bag
-from .routines import BagDiscovery, CleanupRoutine
-from .views import AccessionViewSet, BagDiscoveryView, CleanupRoutineView
+from .routines import BagDiscovery, BagDelivery, CleanupRoutine
+from .views import AccessionViewSet, BagDiscoveryView, BagDeliveryView, CleanupRoutineView
 from ursa_major import settings
 
 data_fixture_dir = join(settings.BASE_DIR, 'fixtures', 'json')
@@ -56,11 +56,13 @@ class BagTestCase(TestCase):
         self.assertEqual(len(Bag.objects.all()), transfer_count, "Wrong number of transfers created")
 
     def process_bags(self):
-        with process_vcr.use_cassette('process_bags.json'):
-            processor = BagDiscovery('http://fornax-web:8003/sips/').run()
-            self.assertTrue(processor)
-            for bag in Bag.objects.all():
-                self.assertTrue(bag.data)
+        print('*** Test routines ***')
+        for routine, end_status in [(BagDiscovery, Bag.DISCOVERED), (BagDelivery, Bag.DELIVERED)]:
+            with process_vcr.use_cassette('process_bags.json'):
+                completed = routine().run()
+                self.assertTrue(completed)
+                for bag in Bag.objects.all():
+                    self.assertEqual(bag.process_status, str(end_status))
 
     def cleanup_bags(self):
         for bag in Bag.objects.all():
@@ -68,16 +70,21 @@ class BagTestCase(TestCase):
         self.assertEqual(0, len(listdir(self.dest_dir)))
 
     def run_view(self):
-        with process_vcr.use_cassette('process_bags.json'):
-            print('*** Test run view ***')
-            request = self.factory.post(reverse('bagdiscovery'), {"test": True})
-            response = BagDiscoveryView.as_view()(request)
-            self.assertEqual(response.status_code, 200, "Response error: {}".format(response.data))
+        print('*** Test views ***')
+        # Reset bag process_status so the view executes the routine
+        for bag in Bag.objects.all():
+            bag.process_status = Bag.CREATED
+            bag.save()
+        for url_name, view in [('bagdiscovery', BagDiscoveryView), ('bagdelivery', BagDeliveryView)]:
+            with process_vcr.use_cassette('process_bags.json'):
+                request = self.factory.post(reverse(url_name))
+                response = view.as_view()(request)
+                self.assertEqual(response.status_code, 200, "Response error: {}".format(response.data))
 
     def cleanup_view(self):
         print('*** Test cleanup view ***')
         for bag in Bag.objects.all():
-            request = self.factory.post(reverse('cleanup'), {"test": True, "identifier": bag.bag_identifier})
+            request = self.factory.post(reverse('cleanup'), {"identifier": bag.bag_identifier})
             response = CleanupRoutineView.as_view()(request)
             self.assertEqual(response.status_code, 200, "Response error: {}".format(response.data))
 
