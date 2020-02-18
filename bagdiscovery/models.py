@@ -18,6 +18,15 @@ class Bag(models.Model):
         ('digitization', 'Digitization')
     )
     origin = models.CharField(max_length=20, choices=ORIGIN_CHOICES, default='aurora')
+    CREATED = 1
+    DISCOVERED = 2
+    DELIVERED = 3
+    PROCESS_STATUS_CHOICES = (
+        (CREATED, "Created"),
+        (DISCOVERED, "Discovered"),
+        (DELIVERED, "Delivered")
+    )
+    process_status = models.CharField(max_length=20, choices=PROCESS_STATUS_CHOICES, default=CREATED)
     data = JSONField(null=True, blank=True)
     created = models.DateTimeField(auto_now=True)
     last_modified = models.DateTimeField(auto_now_add=True)
