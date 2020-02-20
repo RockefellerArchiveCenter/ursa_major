@@ -1,17 +1,18 @@
 import json
-from os.path import isdir, join
-from os import makedirs, listdir
 import shutil
-import vcr
+from os import listdir, makedirs
+from os.path import isdir, join
 
+import vcr
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APIRequestFactory
+from ursa_major import settings
 
 from .models import Accession, Bag
-from .routines import BagDiscovery, BagDelivery, CleanupRoutine
-from .views import AccessionViewSet, BagDiscoveryView, BagDeliveryView, CleanupRoutineView
-from ursa_major import settings
+from .routines import BagDelivery, BagDiscovery, CleanupRoutine
+from .views import (AccessionViewSet, BagDeliveryView, BagDiscoveryView,
+                    CleanupRoutineView)
 
 data_fixture_dir = join(settings.BASE_DIR, 'fixtures', 'json')
 bag_fixture_dir = join(settings.BASE_DIR, 'fixtures', 'bags')

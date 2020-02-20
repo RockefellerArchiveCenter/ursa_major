@@ -13,10 +13,12 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
+from bagdiscovery.views import (AccessionViewSet, BagDeliveryView,
+                                BagDiscoveryView, BagViewSet,
+                                CleanupRoutineView)
 from django.conf.urls import url
+from django.contrib import admin
 from django.urls import include
-from bagdiscovery.views import AccessionViewSet, BagViewSet, BagDiscoveryView, BagDeliveryView, CleanupRoutineView
 from rest_framework import routers
 from rest_framework.schemas import get_schema_view
 
@@ -25,8 +27,8 @@ router.register(r'bags', BagViewSet, 'bag')
 router.register(r'accessions', AccessionViewSet, 'accession')
 
 schema_view = get_schema_view(
-  title="Ursa Major API",
-  description="Endpoints for Ursa Major microservice application.",
+    title="Ursa Major API",
+    description="Endpoints for Ursa Major microservice application.",
 )
 
 

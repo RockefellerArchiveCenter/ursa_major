@@ -1,12 +1,13 @@
 import json
-import jsonschema
 import os
-import requests
 import shutil
 import tarfile
 
-from .models import Bag
+import jsonschema
+import requests
 from ursa_major import settings
+
+from .models import Bag
 
 
 class BagDiscoveryException(Exception):
