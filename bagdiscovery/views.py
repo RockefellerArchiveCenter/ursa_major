@@ -1,17 +1,14 @@
 from asterism.views import prepare_response
 from django.db import IntegrityError
 from jsonschema.exceptions import ValidationError
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.response import Response
 
-from .routines import BagDiscovery, BagDelivery, CleanupRoutine, validate_data
 from .models import Accession, Bag
-from .serializers import (
-    AccessionSerializer,
-    AccessionListSerializer,
-    BagSerializer,
-    BagListSerializer)
+from .routines import BagDelivery, BagDiscovery, CleanupRoutine, validate_data
+from .serializers import (AccessionListSerializer, AccessionSerializer,
+                          BagListSerializer, BagSerializer)
 
 
 class AccessionViewSet(ModelViewSet):
@@ -119,7 +116,6 @@ class BagDeliveryView(BaseRoutineView):
 class CleanupRoutineView(APIView):
     """Removes a transfer from the destination directory. Accepts POST requests
     only."""
-    routine = CleanupRoutine
 
     def post(self, request, format=None):
         try:
