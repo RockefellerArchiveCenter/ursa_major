@@ -1,8 +1,7 @@
-from asterism.views import prepare_response
+from asterism.views import BaseServiceView, RoutineView, prepare_response
 from django.db import IntegrityError
 from jsonschema.exceptions import ValidationError
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from .models import Accession, Bag
@@ -91,36 +90,21 @@ class BagViewSet(ModelViewSet):
         return queryset
 
 
-class BaseRoutineView(APIView):
-    """Base view for routines. Accepts POST request only."""
-
-    def post(self, request, format=None):
-        try:
-            response = self.routine().run()
-            return Response(prepare_response(response), status=200)
-        except Exception as e:
-            return Response(prepare_response(e), status=500)
-
-
-class BagDiscoveryView(BaseRoutineView):
+class BagDiscoveryView(RoutineView):
     """Discovers transfers delivered in accessions and prepares them for
     delivery to the next service. Accepts POST requests only."""
     routine = BagDiscovery
 
 
-class BagDeliveryView(BaseRoutineView):
+class BagDeliveryView(RoutineView):
     """Runs the AssembleSIPs cron job. Accepts POST requests only."""
     routine = BagDelivery
 
 
-class CleanupRoutineView(APIView):
+class CleanupRoutineView(BaseServiceView):
     """Removes a transfer from the destination directory. Accepts POST requests
     only."""
 
-    def post(self, request, format=None):
-        try:
-            identifier = request.data.get('identifier')
-            response = CleanupRoutine(identifier).run()
-            return Response(prepare_response(response), status=200)
-        except Exception as e:
-            return Response(prepare_response(e), status=500)
+    def get_service_response(self, request):
+        identifier = request.data.get('identifier')
+        return CleanupRoutine(identifier).run()
