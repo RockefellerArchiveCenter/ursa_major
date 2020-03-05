@@ -1,6 +1,6 @@
 import json
 from os.path import isdir, join
-from os import makedirs, listdir, remove
+from os import makedirs, listdir
 import shutil
 import vcr
 
@@ -9,7 +9,7 @@ from django.urls import reverse
 from rest_framework.test import APIRequestFactory
 
 from .models import Accession, Bag
-from .library import BagDiscovery, CleanupRoutine
+from .routines import BagDiscovery, CleanupRoutine
 from .views import AccessionViewSet, BagDiscoveryView, CleanupRoutineView
 from ursa_major import settings
 
@@ -41,20 +41,19 @@ class BagTestCase(TestCase):
             makedirs(dir)
 
     def createobjects(self):
-        with process_vcr.use_cassette('store_bags.json'):
-            print('*** Creating objects ***')
-            accession_count = 0
-            transfer_count = 0
-            for f in listdir(data_fixture_dir):
-                with open(join(data_fixture_dir, f), 'r') as json_file:
-                    accession_data = json.load(json_file)
-                    request = self.factory.post(reverse('accession-list'), accession_data, format='json')
-                    response = AccessionViewSet.as_view(actions={"post": "create"})(request)
-                    self.assertEqual(response.status_code, 201, "Wrong HTTP code")
-                    accession_count += 1
-                    transfer_count += len(accession_data['transfers'])
-            self.assertEqual(len(Accession.objects.all()), accession_count, "Wrong number of accessions created")
-            self.assertEqual(len(Bag.objects.all()), transfer_count, "Wrong number of transfers created")
+        print('*** Creating objects ***')
+        accession_count = 0
+        transfer_count = 0
+        for f in listdir(data_fixture_dir):
+            with open(join(data_fixture_dir, f), 'r') as json_file:
+                accession_data = json.load(json_file)
+                request = self.factory.post(reverse('accession-list'), accession_data, format='json')
+                response = AccessionViewSet.as_view(actions={"post": "create"})(request)
+                self.assertEqual(response.status_code, 201, "Response error: {}".format(response.data))
+                accession_count += 1
+                transfer_count += len(accession_data['transfers'])
+        self.assertEqual(len(Accession.objects.all()), accession_count, "Wrong number of accessions created")
+        self.assertEqual(len(Bag.objects.all()), transfer_count, "Wrong number of transfers created")
 
     def process_bags(self):
         with process_vcr.use_cassette('process_bags.json'):
@@ -73,24 +72,24 @@ class BagTestCase(TestCase):
             print('*** Test run view ***')
             request = self.factory.post(reverse('bagdiscovery'), {"test": True})
             response = BagDiscoveryView.as_view()(request)
-            self.assertEqual(response.status_code, 200, "Wrong HTTP code")
+            self.assertEqual(response.status_code, 200, "Response error: {}".format(response.data))
 
     def cleanup_view(self):
         print('*** Test cleanup view ***')
         for bag in Bag.objects.all():
             request = self.factory.post(reverse('cleanup'), {"test": True, "identifier": bag.bag_identifier})
             response = CleanupRoutineView.as_view()(request)
-            self.assertEqual(response.status_code, 200, "Wrong HTTP code")
+            self.assertEqual(response.status_code, 200, "Response error: {}".format(response.data))
 
     def schema(self):
         print('*** Getting schema view ***')
         schema = self.client.get(reverse('schema'))
-        self.assertEqual(schema.status_code, 200, "Wrong HTTP code")
+        self.assertEqual(schema.status_code, 200, "Response error: {}".format(schema))
 
     def health_check(self):
         print('*** Getting status view ***')
         status = self.client.get(reverse('api_health_ping'))
-        self.assertEqual(status.status_code, 200, "Wrong HTTP code")
+        self.assertEqual(status.status_code, 200, "Response error: {}".format(status))
 
     def tearDown(self):
         for d in [self.src_dir, self.dest_dir]:
