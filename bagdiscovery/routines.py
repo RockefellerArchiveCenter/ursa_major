@@ -108,8 +108,8 @@ class BagDiscovery:
     def deliver_data(self, bag, url):
         r = requests.post(
             url,
-            data={
-                "bag_data": json.dumps(bag.data),
+            json={
+                "bag_data": bag.data,
                 "origin": bag.origin,
                 "identifier": bag.bag_identifier},
             headers={"Content-Type": "application/json"},
