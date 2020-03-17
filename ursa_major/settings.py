@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'bagdiscovery',
     'rest_framework',
     'health_check',
+    'asterism',
 ]
 
 MIDDLEWARE = [

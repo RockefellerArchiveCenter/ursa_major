@@ -63,7 +63,7 @@ class BagTestCase(TestCase):
                 completed = routine().run()
                 self.assertTrue(completed)
                 for bag in Bag.objects.all():
-                    self.assertEqual(bag.process_status, str(end_status))
+                    self.assertEqual(bag.process_status, end_status)
 
     def cleanup_bags(self):
         for bag in Bag.objects.all():
