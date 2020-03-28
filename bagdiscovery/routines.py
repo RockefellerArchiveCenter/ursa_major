@@ -3,9 +3,8 @@ import os
 import shutil
 import tarfile
 
+import rac_schemas
 import requests
-from jsonschema.exceptions import ValidationError
-from rac_schemas import is_valid
 from ursa_major import settings
 
 from .models import Bag
@@ -66,10 +65,10 @@ class BagDiscovery:
                     self.tmp_dir, bag.bag_identifier,
                     "{}.json".format(bag.bag_identifier))) as json_file:
                 bag_data = json.load(json_file)
-                is_valid(bag_data, "{}_bag".format(bag_data.get("origin")))
+                rac_schemas.is_valid(bag_data, "{}_bag".format(bag_data.get("origin")))
                 bag.data = bag_data
                 bag.save()
-        except ValidationError as e:
+        except rac_schemas.exceptions.ValidationError as e:
             raise BagDiscoveryException(
                 "Invalid bag data: {}: {}".format(
                     list(

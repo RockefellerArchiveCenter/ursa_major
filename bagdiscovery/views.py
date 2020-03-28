@@ -1,7 +1,6 @@
+import rac_schemas
 from asterism.views import BaseServiceView, RoutineView, prepare_response
 from django.db import IntegrityError
-from jsonschema.exceptions import ValidationError
-from rac_schemas import is_valid
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -36,7 +35,7 @@ class AccessionViewSet(ModelViewSet):
 
     def create(self, request):
         try:
-            is_valid(request.data, "accession")
+            rac_schemas.is_valid(request.data, "accession")
             accession = Accession.objects.create(
                 data=request.data
             )
@@ -51,7 +50,7 @@ class AccessionViewSet(ModelViewSet):
             return Response(prepare_response(
                 ("Accession stored and transfer objects created", transfer_ids)),
                 status=201)
-        except ValidationError as e:
+        except rac_schemas.exceptions.ValidationError as e:
             return Response(prepare_response(
                 "Invalid accession data: {}: {}".format(list(e.path), e.message)),
                 status=400)
