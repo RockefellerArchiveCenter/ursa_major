@@ -1,11 +1,12 @@
 from asterism.views import BaseServiceView, RoutineView, prepare_response
 from django.db import IntegrityError
 from jsonschema.exceptions import ValidationError
+from rac_schemas import is_valid
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from .models import Accession, Bag
-from .routines import BagDelivery, BagDiscovery, CleanupRoutine, validate_data
+from .routines import BagDelivery, BagDiscovery, CleanupRoutine
 from .serializers import (AccessionListSerializer, AccessionSerializer,
                           BagListSerializer, BagSerializer)
 
@@ -35,7 +36,7 @@ class AccessionViewSet(ModelViewSet):
 
     def create(self, request):
         try:
-            validate_data(request.data)
+            is_valid(request.data, "accession")
             accession = Accession.objects.create(
                 data=request.data
             )
