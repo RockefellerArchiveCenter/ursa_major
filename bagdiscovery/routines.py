@@ -3,7 +3,7 @@ import os
 import shutil
 import tarfile
 
-import jsonschema
+import rac_schemas
 import requests
 from ursa_major import settings
 
@@ -16,12 +16,6 @@ class BagDiscoveryException(Exception):
 
 class CleanupException(Exception):
     pass
-
-
-def validate_data(data):
-    with open(os.path.join(settings.BASE_DIR, settings.SCHEMA_PATH), "r") as jf:
-        schema = json.load(jf)
-        jsonschema.validate(instance=data, schema=schema)
 
 
 class BagDiscovery:
@@ -67,12 +61,14 @@ class BagDiscovery:
 
     def save_bag_data(self, bag):
         try:
-            with open(os.path.join(self.tmp_dir, bag.bag_identifier, "{}.json".format(bag.bag_identifier))) as json_file:
+            with open(os.path.join(
+                    self.tmp_dir, bag.bag_identifier,
+                    "{}.json".format(bag.bag_identifier))) as json_file:
                 bag_data = json.load(json_file)
-                validate_data(bag_data)
+                rac_schemas.is_valid(bag_data, "{}_bag".format(bag_data.get("origin")))
                 bag.data = bag_data
                 bag.save()
-        except jsonschema.exceptions.ValidationError as e:
+        except rac_schemas.exceptions.ValidationError as e:
             raise BagDiscoveryException(
                 "Invalid bag data: {}: {}".format(
                     list(
