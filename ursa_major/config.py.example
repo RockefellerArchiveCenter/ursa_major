@@ -17,8 +17,6 @@ SRC_DIR = '{}/src'.format(BASE_DIR)
 TMP_DIR = '{}/tmp'.format(BASE_DIR)
 DEST_DIR = '{}/dest'.format(BASE_DIR)
 
-SCHEMA_PATH = 'ursa-major-schema.json'
-
 DELIVERY_URL = 'http://fornax-web:8003/sips/'
 
 STATIC_ROOT = '/static'
