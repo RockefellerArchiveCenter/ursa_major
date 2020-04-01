@@ -1,3 +1,4 @@
+asterism==0.5
 attrs==19.3.0
 bagit==1.7.0
 certifi==2019.9.11
@@ -33,4 +34,3 @@ uritemplate==3.0.0
 urllib3==1.25.7
 webcolors==1.10
 zipp==1.0.0
-git+https://github.com/RockefellerArchiveCenter/asterism@v0.4.1#egg=asterism
