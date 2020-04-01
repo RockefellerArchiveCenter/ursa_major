@@ -1,10 +1,10 @@
 import json
 import os
 import shutil
-import tarfile
 
 import rac_schemas
 import requests
+from asterism.file_helpers import move_file_or_dir, tar_extract_all
 from ursa_major import settings
 
 from .models import Bag
@@ -51,13 +51,9 @@ class BagDiscovery:
         return ("All bags discovered.", bag_ids)
 
     def unpack_bag(self):
-        try:
-            tf = tarfile.open(os.path.join(self.src_dir, self.bag_name), 'r')
-            tf.extractall(os.path.join(self.tmp_dir))
-            tf.close()
-        except Exception as e:
-            raise BagDiscoveryException(
-                "Error unpacking bag: {}".format(e), self.bag_name)
+        if not tar_extract_all(
+                os.path.join(self.src_dir, self.bag_name), self.tmp_dir):
+            raise BagDiscoveryException("Error unpacking bag", self.bag_name)
 
     def save_bag_data(self, bag):
         try:
@@ -80,14 +76,11 @@ class BagDiscovery:
 
     def move_bag(self, bag):
         try:
+            current_path = os.path.join(
+                settings.BASE_DIR, self.tmp_dir, bag.bag_identifier,
+                self.bag_name)
             new_path = os.path.join(self.dest_dir, self.bag_name)
-            shutil.move(
-                os.path.join(
-                    settings.BASE_DIR,
-                    self.tmp_dir,
-                    bag.bag_identifier,
-                    self.bag_name),
-                os.path.join(settings.BASE_DIR, new_path))
+            move_file_or_dir(current_path, new_path)
             bag.bag_path = new_path
             bag.save()
             shutil.rmtree(
