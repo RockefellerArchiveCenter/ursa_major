@@ -102,28 +102,22 @@ class BagDelivery:
                 bag_ids.append(bag.bag_identifier)
                 bag.process_status = Bag.DELIVERED
                 bag.save()
-            except Exception as e:
+            except requests.exceptions.HTTPError as e:
                 raise BagDiscoveryException(
                     "Error sending metadata to {}: {}".format(
-                        settings.DELIVERY_URL, e))
+                        settings.DELIVERY_URL, e.request.text))
         return ("All bag data delivered.", bag_ids)
 
     def deliver_data(self, bag, url):
-        try:
-            r = requests.post(
-                url,
-                json={
-                    "bag_data": bag.data,
-                    "origin": bag.origin,
-                    "identifier": bag.bag_identifier},
-                headers={"Content-Type": "application/json"},
-            )
-            r.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            try:
-                raise Exception(r.json()["detail"])
-            except Exception:
-                raise e
+        r = requests.post(
+            url,
+            json={
+                "bag_data": bag.data,
+                "origin": bag.origin,
+                "identifier": bag.bag_identifier},
+            headers={"Content-Type": "application/json"},
+        )
+        r.raise_for_status()
 
 
 class CleanupRoutine:
