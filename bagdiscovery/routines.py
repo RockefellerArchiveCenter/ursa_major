@@ -61,7 +61,7 @@ class BagDiscovery:
                     self.tmp_dir, bag.bag_identifier,
                     "{}.json".format(bag.bag_identifier))) as json_file:
                 bag_data = json.load(json_file)
-                rac_schemas.is_valid(bag_data, "{}_bag".format(bag_data.get("origin"), "aurora"))
+                rac_schemas.is_valid(bag_data, "{}_bag".format(bag_data.get("origin", "aurora")))
                 bag.data = bag_data
                 bag.save()
         except rac_schemas.exceptions.ValidationError as e:
