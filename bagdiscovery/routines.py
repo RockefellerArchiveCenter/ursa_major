@@ -109,15 +109,21 @@ class BagDelivery:
         return ("All bag data delivered.", bag_ids)
 
     def deliver_data(self, bag, url):
-        r = requests.post(
-            url,
-            json={
-                "bag_data": bag.data,
-                "origin": bag.origin,
-                "identifier": bag.bag_identifier},
-            headers={"Content-Type": "application/json"},
-        )
-        r.raise_for_status()
+        try:
+            r = requests.post(
+                url,
+                json={
+                    "bag_data": bag.data,
+                    "origin": bag.origin,
+                    "identifier": bag.bag_identifier},
+                headers={"Content-Type": "application/json"},
+            )
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            if r.text:
+                raise Exception(r.text)
+            else:
+                raise e
 
 
 class CleanupRoutine:
