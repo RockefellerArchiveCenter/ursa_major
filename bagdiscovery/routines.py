@@ -105,7 +105,7 @@ class BagDelivery:
             except requests.exceptions.HTTPError as e:
                 raise BagDiscoveryException(
                     "Error sending metadata to {}: {}".format(
-                        settings.DELIVERY_URL, e.request.text))
+                        settings.DELIVERY_URL, e.text))
         return ("All bag data delivered.", bag_ids)
 
     def deliver_data(self, bag, url):
