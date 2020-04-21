@@ -120,9 +120,9 @@ class BagDelivery:
             )
             r.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            if r.text:
-                raise Exception(r.text)
-            else:
+            try:
+                raise Exception(r.json()["detail"])
+            except Exception:
                 raise e
 
 
