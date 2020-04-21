@@ -104,7 +104,7 @@ class BagDelivery:
                 bag.save()
             except Exception as e:
                 raise BagDiscoveryException(
-                    "Error sending metadata to {}: {} {}".format(
+                    "Error sending metadata to {}: {}".format(
                         settings.DELIVERY_URL, e))
         return ("All bag data delivered.", bag_ids)
 
