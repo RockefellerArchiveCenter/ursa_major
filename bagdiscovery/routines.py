@@ -66,7 +66,7 @@ class BagDiscovery:
                 bag.save()
         except rac_schemas.exceptions.ValidationError as e:
             raise BagDiscoveryException(
-                "Invalid bag data: {}: {}".format(e))
+                "Invalid bag data: {}".format(e))
         except Exception as e:
             raise BagDiscoveryException(
                 "Error saving bag data: {}".format(e),
