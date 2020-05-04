@@ -79,14 +79,15 @@ class BagDiscovery:
                 settings.BASE_DIR, self.tmp_dir, bag.bag_identifier,
                 self.bag_name)
             new_path = os.path.join(self.dest_dir, self.bag_name)
-            move_file_or_dir(current_path, new_path)
-            bag.bag_path = new_path
-            bag.save()
-            shutil.rmtree(
-                os.path.join(
-                    settings.BASE_DIR,
-                    self.tmp_dir,
-                    bag.bag_identifier))
+            moved = move_file_or_dir(current_path, new_path)
+            if moved:
+                bag.bag_path = new_path
+                bag.save()
+                shutil.rmtree(
+                    os.path.join(
+                        settings.BASE_DIR,
+                        self.tmp_dir,
+                        bag.bag_identifier))
         except Exception as e:
             raise BagDiscoveryException(
                 "Error moving bag: {}".format(e),
