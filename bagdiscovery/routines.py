@@ -51,9 +51,10 @@ class BagDiscovery:
         return ("All bags discovered.", bag_ids)
 
     def unpack_bag(self):
-        if not tar_extract_all(
-                os.path.join(self.src_dir, self.bag_name), self.tmp_dir):
-            raise BagDiscoveryException("Error unpacking bag", self.bag_name)
+        extracted = tar_extract_all(
+            os.path.join(self.src_dir, self.bag_name), self.tmp_dir)
+        if not extracted:
+            raise BagDiscoveryException("Error unpacking bag.", self.bag_name)
 
     def save_bag_data(self, bag):
         try:
