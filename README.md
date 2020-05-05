@@ -31,17 +31,15 @@ Or, if you want to remove all data
 
 ## Services
 
-ursa major has three services, all of which are exposed via HTTP endpoints (see [Routes](#routes) section below):
+ursa major has four services, all of which are exposed via HTTP endpoints (see [Routes](#routes) section below):
 
 * Store Accessions - validates incoming data, and saves an Accession object as well as a Bag object for each transfer identified in the `transfers` key of the data delivered.
 * Bag Discovery - the main service for this application, which consists of the following steps:
   * Checking to see if the files for the bag are in the landing directory.
   * "Unpacking" the bag files and saving the metadata to the Bag object.
   * Moving bag to the storage directory and updating the `bag_path` field.
-  * Notifying another service that the bag is available for further processing via a POST request.
+* Bag Delivery - delivers data about the bag to another service.
 * Cleanup - removes files from the destination directory.
-
-![Ursa Major diagram](ursa-major-services.png)
 
 
 ### Routes
@@ -52,6 +50,7 @@ ursa major has three services, all of which are exposed via HTTP endpoints (see 
 |GET|/bags| |200|Returns a list of transfers|
 |GET|/bags/{id}| |200|Returns data about an individual transfer|
 |POST|/bagdiscovery||200|Runs the BagDiscovery routine|
+|POST|/bagdelivery||200|Runs the BagDelivery routine|
 |POST|/cleanup||200|Runs the Cleanup routine|
 |GET|/status||200|Return the status of the microservice|
 |GET|/schema.json||200|Returns the OpenAPI schema for this application|

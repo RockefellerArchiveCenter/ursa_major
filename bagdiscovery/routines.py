@@ -1,12 +1,13 @@
 import json
-import jsonschema
 import os
-import requests
 import shutil
-import tarfile
+
+import rac_schemas
+import requests
+from asterism.file_helpers import move_file_or_dir, tar_extract_all
+from ursa_major import settings
 
 from .models import Bag
-from ursa_major import settings
 
 
 class BagDiscoveryException(Exception):
@@ -17,20 +18,13 @@ class CleanupException(Exception):
     pass
 
 
-def validate_data(data):
-    with open(os.path.join(settings.BASE_DIR, settings.SCHEMA_PATH), "r") as jf:
-        schema = json.load(jf)
-        jsonschema.validate(instance=data, schema=schema)
-
-
 class BagDiscovery:
     """Discovers and stores bags, and delivers data to another service."""
 
-    def __init__(self, url, dirs=None):
-        self.url = url
-        self.src_dir = dirs['src'] if dirs else settings.SRC_DIR
-        self.tmp_dir = dirs['tmp'] if dirs else settings.TMP_DIR
-        self.dest_dir = dirs['dest'] if dirs else settings.DEST_DIR
+    def __init__(self):
+        self.src_dir = settings.SRC_DIR
+        self.tmp_dir = settings.TMP_DIR
+        self.dest_dir = settings.DEST_DIR
         for dir in [os.path.join(settings.BASE_DIR, self.src_dir),
                     os.path.join(settings.BASE_DIR, self.tmp_dir),
                     os.path.join(settings.BASE_DIR, self.dest_dir)]:
@@ -42,42 +36,38 @@ class BagDiscovery:
                 raise BagDiscoveryException("Directory not writable", dir)
 
     def run(self):
-        bags = Bag.objects.filter(bag_path__isnull=True)
         bag_ids = []
-        for bag in bags:
+        for bag in Bag.objects.filter(process_status=Bag.CREATED):
             self.bag_name = "{}.tar.gz".format(bag.bag_identifier)
             if os.path.exists(os.path.join(self.src_dir, self.bag_name)):
                 self.unpack_bag()
                 self.save_bag_data(bag)
                 self.move_bag(bag)
-                if self.url:
-                    self.deliver_data(bag, self.url)
                 bag_ids.append(bag.bag_identifier)
+                bag.process_status = bag.DISCOVERED
+                bag.save()
             else:
                 continue
-        return ("All bags discovered and stored.", bag_ids)
+        return ("All bags discovered.", bag_ids)
 
     def unpack_bag(self):
-        try:
-            tf = tarfile.open(os.path.join(self.src_dir, self.bag_name), 'r')
-            tf.extractall(os.path.join(self.tmp_dir))
-            tf.close()
-        except Exception as e:
-            raise BagDiscoveryException(
-                "Error unpacking bag: {}".format(e), self.bag_name)
+        extracted = tar_extract_all(
+            os.path.join(self.src_dir, self.bag_name), self.tmp_dir)
+        if not extracted:
+            raise BagDiscoveryException("Error unpacking bag.", self.bag_name)
 
     def save_bag_data(self, bag):
         try:
-            with open(os.path.join(self.tmp_dir, bag.bag_identifier, "{}.json".format(bag.bag_identifier))) as json_file:
+            with open(os.path.join(
+                    self.tmp_dir, bag.bag_identifier,
+                    "{}.json".format(bag.bag_identifier))) as json_file:
                 bag_data = json.load(json_file)
-                validate_data(bag_data)
+                rac_schemas.is_valid(bag_data, "{}_bag".format(bag_data.get("origin", "aurora")))
                 bag.data = bag_data
                 bag.save()
-        except jsonschema.exceptions.ValidationError as e:
+        except rac_schemas.exceptions.ValidationError as e:
             raise BagDiscoveryException(
-                "Invalid bag data: {}: {}".format(
-                    list(
-                        e.path), e.message))
+                "Invalid bag data: {}".format(e), bag.bag_identifier)
         except Exception as e:
             raise BagDiscoveryException(
                 "Error saving bag data: {}".format(e),
@@ -85,48 +75,64 @@ class BagDiscovery:
 
     def move_bag(self, bag):
         try:
+            current_path = os.path.join(
+                settings.BASE_DIR, self.tmp_dir, bag.bag_identifier,
+                self.bag_name)
             new_path = os.path.join(self.dest_dir, self.bag_name)
-            shutil.move(
-                os.path.join(
-                    settings.BASE_DIR,
-                    self.tmp_dir,
-                    bag.bag_identifier,
-                    self.bag_name),
-                os.path.join(settings.BASE_DIR, new_path))
-            bag.bag_path = new_path
-            bag.save()
-            shutil.rmtree(
-                os.path.join(
-                    settings.BASE_DIR,
-                    self.tmp_dir,
-                    bag.bag_identifier))
+            moved = move_file_or_dir(current_path, new_path)
+            if moved:
+                bag.bag_path = new_path
+                bag.save()
+                shutil.rmtree(
+                    os.path.join(
+                        settings.BASE_DIR,
+                        self.tmp_dir,
+                        bag.bag_identifier))
         except Exception as e:
             raise BagDiscoveryException(
                 "Error moving bag: {}".format(e),
                 bag.bag_identifier)
 
+
+class BagDelivery:
+
+    def run(self):
+        bag_ids = []
+        for bag in Bag.objects.filter(process_status=Bag.DISCOVERED):
+            try:
+                self.deliver_data(bag, settings.DELIVERY_URL)
+                bag_ids.append(bag.bag_identifier)
+                bag.process_status = Bag.DELIVERED
+                bag.save()
+            except Exception as e:
+                raise BagDiscoveryException(
+                    "Error sending metadata to {}: {}".format(
+                        settings.DELIVERY_URL, e))
+        return ("All bag data delivered.", bag_ids)
+
     def deliver_data(self, bag, url):
-        r = requests.post(
-            url,
-            json={
-                "bag_data": bag.data,
-                "origin": bag.origin,
-                "identifier": bag.bag_identifier},
-            headers={"Content-Type": "application/json"},
-        )
-        if r.status_code != 200:
-            raise BagDiscoveryException(
-                "Error sending metadata to {}: {} {}".format(
-                    url, r.status_code, r.reason))
-        return True
+        try:
+            r = requests.post(
+                url,
+                json={
+                    "bag_data": bag.data,
+                    "origin": bag.origin,
+                    "identifier": bag.bag_identifier},
+                headers={"Content-Type": "application/json"},
+            )
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            if r.text:
+                raise Exception(r.text)
+            else:
+                raise e
 
 
 class CleanupRoutine:
     """Removes files from the destination directory."""
 
-    def __init__(self, identifier, dirs):
+    def __init__(self, identifier):
         self.identifier = identifier
-        self.dest_dir = dirs['dest'] if dirs else settings.DEST_DIR
         if not self.identifier:
             raise CleanupException(
                 "No identifier submitted, unable to perform CleanupRoutine.", None)
@@ -134,7 +140,7 @@ class CleanupRoutine:
     def run(self):
         try:
             self.filepath = "{}.tar.gz".format(
-                os.path.join(self.dest_dir, self.identifier))
+                os.path.join(settings.DEST_DIR, self.identifier))
             if os.path.isfile(self.filepath):
                 os.remove(self.filepath)
                 return ("Transfer removed.", self.identifier)

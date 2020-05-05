@@ -1,16 +1,13 @@
-import urllib
-
-from asterism.views import prepare_response
+import rac_schemas
+from asterism.views import BaseServiceView, RoutineView, prepare_response
 from django.db import IntegrityError
-from jsonschema.exceptions import ValidationError
-from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 
-from .routines import BagDiscovery, CleanupRoutine, validate_data
 from .models import Accession, Bag
-from .serializers import AccessionSerializer, AccessionListSerializer, BagSerializer, BagListSerializer
-from ursa_major import settings
+from .routines import BagDelivery, BagDiscovery, CleanupRoutine
+from .serializers import (AccessionListSerializer, AccessionSerializer,
+                          BagListSerializer, BagSerializer)
 
 
 class AccessionViewSet(ModelViewSet):
@@ -22,7 +19,8 @@ class AccessionViewSet(ModelViewSet):
     Return paginated data about all accessions.
 
     create:
-    Create a new accession. Also creates Bags for each transfer identified in the `transfers` key.
+    Create a new accession. Also creates Bags for each transfer identified in
+    the `transfers` key.
 
     update:
     Update an existing accession, identified by a primary key.
@@ -37,7 +35,7 @@ class AccessionViewSet(ModelViewSet):
 
     def create(self, request):
         try:
-            validate_data(request.data)
+            rac_schemas.is_valid(request.data, "accession")
             accession = Accession.objects.create(
                 data=request.data
             )
@@ -46,11 +44,16 @@ class AccessionViewSet(ModelViewSet):
                 Bag.objects.create(
                     bag_identifier=t['identifier'],
                     accession=accession,
+                    process_status=Bag.CREATED,
                 )
                 transfer_ids.append(t['identifier'])
-            return Response(prepare_response(("Accession stored and transfer objects created", transfer_ids)), status=201)
-        except ValidationError as e:
-            return Response(prepare_response("Invalid accession data: {}: {}".format(list(e.path), e.message)), status=400)
+            return Response(prepare_response(
+                ("Accession stored and transfer objects created", transfer_ids)),
+                status=201)
+        except rac_schemas.exceptions.ValidationError as e:
+            return Response(prepare_response(
+                "Invalid accession data: {}: {}".format(list(e.path), e.message)),
+                status=400)
         except IntegrityError as e:
             return Response(prepare_response(e), status=409)
         except Exception as e:
@@ -60,7 +63,8 @@ class AccessionViewSet(ModelViewSet):
 class BagViewSet(ModelViewSet):
     """
     retrieve:
-    Return data about a bag, identified by a primary key. Accepts the parameter `id`, which will return all bags matching that id.
+    Return data about a bag, identified by a primary key. Accepts the parameter
+    `id`, which will return all bags matching that id.
 
     list:
     Return paginated data about all bags.
@@ -86,32 +90,21 @@ class BagViewSet(ModelViewSet):
         return queryset
 
 
-class BaseRoutineView(APIView):
-    """Base view for routines. Accepts POST request only."""
-
-    def post(self, request, format=None):
-        dirs = {"src": settings.TEST_SRC_DIR, "tmp": settings.TEST_TMP_DIR, "dest": settings.TEST_DEST_DIR} if request.POST.get('test') else None
-        data = self.get_data(request)
-
-        try:
-            response = self.routine(data, dirs).run()
-            return Response(prepare_response(response), status=200)
-        except Exception as e:
-            return Response(prepare_response(e), status=500)
-
-
-class BagDiscoveryView(BaseRoutineView):
-    """Runs the AssembleSIPs cron job. Accepts POST requests only."""
+class BagDiscoveryView(RoutineView):
+    """Discovers transfers delivered in accessions and prepares them for
+    delivery to the next service. Accepts POST requests only."""
     routine = BagDiscovery
 
-    def get_data(self, request):
-        url = request.GET.get('post_service_url')
-        return urllib.parse.unquote(url) if url else ''
+
+class BagDeliveryView(RoutineView):
+    """Runs the AssembleSIPs cron job. Accepts POST requests only."""
+    routine = BagDelivery
 
 
-class CleanupRoutineView(BaseRoutineView):
-    """Removes a transfer from the destination directory. Accepts POST requests only."""
-    routine = CleanupRoutine
+class CleanupRoutineView(BaseServiceView):
+    """Removes a transfer from the destination directory. Accepts POST requests
+    only."""
 
-    def get_data(self, request):
-        return request.data.get('identifier')
+    def get_service_response(self, request):
+        identifier = request.data.get('identifier')
+        return CleanupRoutine(identifier).run()

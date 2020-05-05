@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+
 from . import config as CF
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'bagdiscovery',
     'rest_framework',
     'health_check',
+    'asterism',
 ]
 
 MIDDLEWARE = [
@@ -124,10 +126,8 @@ CRON_CLASSES = [
 SRC_DIR = CF.SRC_DIR
 TMP_DIR = CF.TMP_DIR
 DEST_DIR = CF.DEST_DIR
-TEST_SRC_DIR = CF.TEST_SRC_DIR
-TEST_TMP_DIR = CF.TEST_TMP_DIR
-TEST_DEST_DIR = CF.TEST_DEST_DIR
-SCHEMA_PATH = CF.SCHEMA_PATH
+
+DELIVERY_URL = CF.DELIVERY_URL
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
