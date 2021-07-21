@@ -23,41 +23,41 @@
     "organization": "Test Organization",
     "rights_statements": [
         {
-            "note": "Records embargoed for 10 years after date of creation.",
-            "other_rights_basis": "Donor",
+            "basis_note": "Records embargoed for 10 years after date of creation.",
+            "other_basis": "donor",
             "end_date": "2016-06-17",
             "rights_granted": [
                 {
                     "act": "disseminate",
                     "start_date": "1999-05-14",
                     "end_date": "2016-06-17",
-                    "note": "Records are open for research after expiration of embargo period.",
-                    "restriction": "disallow"
+                    "granted_note": "Records are open for research after expiration of embargo period.",
+                    "grant_restriction": "disallow"
                 },
                 {
                     "act": "disseminate",
                     "start_date": "2009-05-14",
                     "end_date": "2006-06-17",
-                    "note": "Records are open for research after expiration of embargo period.",
-                    "restriction": "allow"
+                    "granted_note": "Records are open for research after expiration of embargo period.",
+                    "grant_restriction": "allow"
                 }
             ],
-            "rights_basis": "Other",
+            "rights_basis": "other",
             "start_date": "1999-05-14"
         },
         {
             "status": "copyrighted",
             "end_date": "2046-06-16",
-            "rights_basis": "Copyright",
+            "rights_basis": "copyright",
             "jurisdiction": "us",
-            "note": "Work for hire, under copyright until 40 years after creation.",
+            "basis_note": "Work for hire, under copyright until 40 years after creation.",
             "rights_granted": [
                 {
                     "act": "publish",
                     "start_date": "1999-05-14",
                     "end_date": "2046-06-16",
-                    "note": "Records under copyright may not be republished without permission from the copyright holder.",
-                    "restriction": "disallow"
+                    "granted_note": "Records under copyright may not be republished without permission from the copyright holder.",
+                    "grant_restriction": "disallow"
                 }
             ],
             "determination_date": "2018-09-18",
