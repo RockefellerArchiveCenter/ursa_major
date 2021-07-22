@@ -18,3 +18,4 @@ class Bag(BasePackage):
         (DELIVERED, "Delivered")
     )
     accession = models.ForeignKey(Accession, on_delete=models.CASCADE, null=True, blank=True)
+    process_status = models.IntegerField(choices=PROCESS_STATUS_CHOICES, default=CREATED)
