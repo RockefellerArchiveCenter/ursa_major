@@ -13,7 +13,7 @@ from ursa_major import settings
 from .models import Accession, Bag
 from .routines import BagDelivery, BagDiscovery, CleanupRoutine
 from .views import (AccessionViewSet, BagDeliveryView, BagDiscoveryView,
-                    CleanupRoutineView)
+                    BagViewSet, CleanupRoutineView)
 
 data_fixture_dir = join(settings.BASE_DIR, 'fixtures', 'json')
 bag_fixture_dir = join(settings.BASE_DIR, 'fixtures', 'bags')
@@ -109,6 +109,16 @@ class BagTestCase(TestCase):
             request = self.factory.post(reverse('cleanup'), {"identifier": bag.bag_identifier})
             response = CleanupRoutineView.as_view()(request)
             self.assertEqual(response.status_code, 200, "Response error: {}".format(response.data))
+
+    def test_bag_creation(self):
+        bag_data = {
+            "bag_data": "foobar",
+            "origin": "aurora",
+            "bag_identifier": "123456"
+        }
+        request = self.factory.post(reverse('bag-list'), bag_data, format='json')
+        response = BagViewSet.as_view(actions={"post": "create"})(request)
+        self.assertEqual(response.status_code, 201, "Response error: {}".format(response.data))
 
     def test_schema(self):
         """Tests the schema view."""
