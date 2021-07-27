@@ -44,7 +44,6 @@ class AccessionViewSet(ModelViewSet):
                 Bag.objects.create(
                     bag_identifier=t['identifier'],
                     accession=accession,
-                    process_status=Bag.CREATED,
                 )
                 transfer_ids.append(t['identifier'])
             return Response(prepare_response(

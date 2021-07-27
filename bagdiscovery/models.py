@@ -1,10 +1,9 @@
 from asterism.models import BasePackage
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 
 
 class Accession(models.Model):
-    data = JSONField(null=True, blank=True)
+    data = models.JSONField(null=True, blank=True)
     created = models.DateTimeField(auto_now=True)
     last_modified = models.DateTimeField(auto_now_add=True)
 
@@ -19,3 +18,4 @@ class Bag(BasePackage):
         (DELIVERED, "Delivered")
     )
     accession = models.ForeignKey(Accession, on_delete=models.CASCADE, null=True, blank=True)
+    process_status = models.IntegerField(choices=PROCESS_STATUS_CHOICES, default=CREATED)
