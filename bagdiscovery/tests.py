@@ -118,6 +118,8 @@ class BagTestCase(TestCase):
         }
         request = self.factory.post(reverse('bag-list'), bag_data, format='json')
         response = BagViewSet.as_view(actions={"post": "create"})(request)
+        # for key, value in bag_data.items():
+        #     self.assertEqual(response.json()[key], bag_data[key])
         self.assertEqual(response.status_code, 201, "Response error: {}".format(response.data))
 
     def test_schema(self):
