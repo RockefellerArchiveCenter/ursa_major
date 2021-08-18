@@ -111,6 +111,7 @@ class BagTestCase(TestCase):
             self.assertEqual(response.status_code, 200, "Response error: {}".format(response.data))
 
     def test_bag_creation(self):
+        """Ensures that bag model instances are properly created via POST requests."""
         BAG_DATAS = [
             {
                 "origin": "aurora",
