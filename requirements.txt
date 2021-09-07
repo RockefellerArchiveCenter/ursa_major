@@ -20,7 +20,7 @@ clinner==1.12.3
     # via health-check
 colorlog==3.2.0
     # via clinner
-django==3.2.5
+django==3.2.7
     # via
     #   -r requirements.in
     #   asterism
@@ -53,7 +53,7 @@ pytz==2021.1
     # via django
 pyyaml==5.4.1
     # via health-check
-rac_schemas==0.28
+rac_schemas==0.29
     # via -r requirements.in
 requests==2.26.0
     # via -r requirements.in

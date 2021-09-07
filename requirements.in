@@ -1,8 +1,8 @@
 asterism==0.7.2
-Django==3.2.5
+Django==3.2.7
 djangorestframework==3.12.4
 health-check==3.4.1
 psycopg2-binary==2.9.1
-rac_schemas==0.28
+rac_schemas==0.29
 requests==2.26.0
 uritemplate==3.0.0

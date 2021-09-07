@@ -21,7 +21,7 @@ class BagSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Bag
-        fields = ('url', 'bag_identifier', 'bag_path', 'accession', 'data', 'created', 'last_modified')
+        fields = ('url', 'bag_identifier', 'bag_path', 'origin', 'accession', 'data', 'created', 'last_modified')
 
 
 class BagListSerializer(serializers.HyperlinkedModelSerializer):
