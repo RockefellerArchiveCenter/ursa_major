@@ -56,6 +56,12 @@ ursa major has four services, all of which are exposed via HTTP endpoints (see [
 |GET|/schema.json||200|Returns the OpenAPI schema for this application|
 
 
+
+## Development
+
+This repository contains a configuration file for git [pre-commit](https://pre-commit.com/) hooks which help ensure that code is linted before it is checked into version control. It is strongly recommended that you install these hooks locally by installing pre-commit and running `pre-commit install`.
+
+
 ## License
 
 This code is released under an [MIT License](LICENSE).
