@@ -16,7 +16,9 @@ BASE_DIR = ''
 SRC_DIR = '{}/src'.format(BASE_DIR)
 TMP_DIR = '{}/tmp'.format(BASE_DIR)
 DEST_DIR = '{}/dest'.format(BASE_DIR)
+DERIVATIVE_CREATION_DIR = '{}/derivatives'.format(BASE_DIR)
 
 DELIVERY_URL = 'http://fornax-web:8003/sips/'
+DERIVATIVE_DELIVERY_URL = 'http://pictor-web:8012/bags/'
 
 STATIC_ROOT = '/static'
