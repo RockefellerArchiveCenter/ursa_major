@@ -4,7 +4,8 @@ import shutil
 
 import rac_schemas
 import requests
-from asterism.file_helpers import move_file_or_dir, tar_extract_all
+from asterism.file_helpers import (copy_file_or_dir, move_file_or_dir,
+                                   tar_extract_all)
 from ursa_major import settings
 
 from .models import Bag
@@ -25,9 +26,11 @@ class BagDiscovery:
         self.src_dir = settings.SRC_DIR
         self.tmp_dir = settings.TMP_DIR
         self.dest_dir = settings.DEST_DIR
+        self.derivative_creation_dir = settings.DERIVATIVE_CREATION_DIR
         for dir in [os.path.join(settings.BASE_DIR, self.src_dir),
                     os.path.join(settings.BASE_DIR, self.tmp_dir),
-                    os.path.join(settings.BASE_DIR, self.dest_dir)]:
+                    os.path.join(settings.BASE_DIR, self.dest_dir),
+                    os.path.join(settings.BASE_DIR, self.derivative_creation_dir)]:
             if not os.path.isdir(dir):
                 raise BagDiscoveryException("Directory does not exist", dir)
         for dir in [os.path.join(settings.BASE_DIR, self.dest_dir), os.path.join(
@@ -78,6 +81,9 @@ class BagDiscovery:
             current_path = os.path.join(
                 settings.BASE_DIR, self.tmp_dir, bag.bag_identifier,
                 self.bag_name)
+            if bag.origin == "digitization":
+                derivative_path = os.path.join(settings.DERIVATIVE_CREATION_DIR, self.bag_name)
+                copy_file_or_dir(current_path, derivative_path)
             new_path = os.path.join(self.dest_dir, self.bag_name)
             moved = move_file_or_dir(current_path, new_path)
             if moved:
@@ -101,6 +107,8 @@ class BagDelivery:
         for bag in Bag.objects.filter(process_status=Bag.DISCOVERED):
             try:
                 self.deliver_data(bag, settings.DELIVERY_URL)
+                if bag.origin == "digitization":
+                    self.deliver_data(bag, settings.DERIVATIVE_DELIVERY_URL)
                 bag_ids.append(bag.bag_identifier)
                 bag.process_status = Bag.DELIVERED
                 bag.save()
