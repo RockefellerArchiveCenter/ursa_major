@@ -26,13 +26,17 @@ class BagTestCase(TestCase):
         self.src_dir = settings.SRC_DIR
         self.tmp_dir = settings.TMP_DIR
         self.dest_dir = settings.DEST_DIR
-        for d in [self.src_dir, self.tmp_dir, self.dest_dir]:
+        self.derivative_creation_dir = settings.DERIVATIVE_CREATION_DIR
+        for d in [self.src_dir, self.tmp_dir, self.dest_dir, self.derivative_creation_dir]:
             if isdir(d):
                 shutil.rmtree(d)
         shutil.copytree(bag_fixture_dir, self.src_dir)
-        for dir in [self.dest_dir, self.tmp_dir]:
+        for dir in [self.dest_dir, self.tmp_dir, settings.DERIVATIVE_CREATION_DIR]:
             makedirs(dir)
         self.create_objects()
+        bag = random.choice(Bag.objects.all())
+        bag.origin = "digitization"
+        bag.save()
 
     def set_bag_status(self, status):
         """Helper function to set all bags to a desired process_status."""
@@ -55,13 +59,14 @@ class BagTestCase(TestCase):
         self.assertEqual(len(Accession.objects.all()), accession_count, "Wrong number of accessions created")
         self.assertEqual(len(Bag.objects.all()), transfer_count, "Wrong number of transfers created")
 
-    def test_process_bags(self):
+    def test_discover_bags(self):
         """Ensures that BagDiscovery routine runs without errors."""
         self.set_bag_status(Bag.CREATED)
         discovered = BagDiscovery().run()
         self.assertTrue(discovered)
         for bag in Bag.objects.all():
             self.assertEqual(bag.process_status, Bag.DISCOVERED)
+        self.assertEqual(len(listdir(settings.DERIVATIVE_CREATION_DIR)), 1)
 
     @patch('bagdiscovery.routines.requests.post')
     def test_deliver_bags(self, mock_post):
@@ -71,7 +76,7 @@ class BagTestCase(TestCase):
         self.assertTrue(delivered)
         for bag in Bag.objects.all():
             self.assertEqual(bag.process_status, Bag.DELIVERED)
-        self.assertEqual(mock_post.call_count, len(Bag.objects.all()))
+        self.assertEqual(mock_post.call_count, len(Bag.objects.all()) + 1)
 
     def test_cleanup_bags(self):
         """Ensures that CleanupRoutine runs without errors."""
@@ -93,7 +98,7 @@ class BagTestCase(TestCase):
         request = self.factory.post(reverse('bagdelivery'))
         response = BagDeliveryView.as_view()(request)
         self.assertEqual(response.status_code, 200, "Response error: {}".format(response.data))
-        self.assertEqual(mock_post.call_count, len(Bag.objects.all()))
+        self.assertEqual(mock_post.call_count, len(Bag.objects.all()) + 1)
         bag = random.choice(Bag.objects.all())
         mock_post.assert_any_call(
             settings.DELIVERY_URL,
