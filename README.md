@@ -4,7 +4,7 @@ A microservice to discover and store bags.
 
 ursa major is part of [Project Electron](https://github.com/RockefellerArchiveCenter/project_electron), an initiative to build sustainable, open and user-centered infrastructure for the archival management of digital records at the [Rockefeller Archive Center](http://rockarch.org/).
 
-[![Build Status](https://travis-ci.org/RockefellerArchiveCenter/ursa_major.svg?branch=master)](https://travis-ci.org/RockefellerArchiveCenter/ursa_major)
+[![Build Status](https://travis-ci.org/RockefellerArchiveCenter/ursa_major.svg?branch=base)](https://travis-ci.org/RockefellerArchiveCenter/ursa_major)
 ![GitHub (pre-)release](https://img.shields.io/github/release/RockefellerArchiveCenter/ursa_major/all.svg)
 
 ## Setup
@@ -54,6 +54,12 @@ ursa major has four services, all of which are exposed via HTTP endpoints (see [
 |POST|/cleanup||200|Runs the Cleanup routine|
 |GET|/status||200|Return the status of the microservice|
 |GET|/schema.json||200|Returns the OpenAPI schema for this application|
+
+
+
+## Development
+
+This repository contains a configuration file for git [pre-commit](https://pre-commit.com/) hooks which help ensure that code is linted before it is checked into version control. It is strongly recommended that you install these hooks locally by installing pre-commit and running `pre-commit install`.
 
 
 ## License
