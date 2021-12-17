@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 
-from . import config as CF
+from ursa_major import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -22,12 +22,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'de#zj*$s(y%&1xd)dv#=7=#vz_(&l_3g)%)y#sgjykx0!!is=s'
+SECRET_KEY = config.DJANGO_SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = CF.DEBUG
+DEBUG = config.DJANGO_DEBUG
 
-ALLOWED_HOSTS = CF.ALLOWED_HOSTS
+ALLOWED_HOSTS = config.DJANGO_ALLOWED_HOSTS
 
 
 # Application definition
@@ -60,7 +60,7 @@ ROOT_URLCONF = 'ursa_major.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'bagdiscovery', 'templates')],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -75,8 +75,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ursa_major.wsgi.application'
 
-
-DATABASES = CF.DATABASES
+DATABASES = {
+    "default": {
+        "ENGINE": config.SQL_ENGINE,
+        "NAME": config.SQL_DATABASE,
+        "USER": config.SQL_USER,
+        "PASSWORD": config.SQL_PASSWORD,
+        "HOST": config.SQL_HOST,
+        "PORT": config.SQL_PORT,
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -117,19 +125,19 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = CF.STATIC_ROOT
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 CRON_CLASSES = [
     "bagdiscovery.cron.bagStore"
 ]
 
-SRC_DIR = CF.SRC_DIR
-TMP_DIR = CF.TMP_DIR
-DEST_DIR = CF.DEST_DIR
-DERIVATIVE_CREATION_DIR = CF.DERIVATIVE_CREATION_DIR
+SRC_DIR = os.path.join(config.STORAGE_ROOT, config.STORAGE_SRC_DIR)
+TMP_DIR = os.path.join(config.STORAGE_ROOT, config.STORAGE_TMP_DIR)
+DEST_DIR = os.path.join(config.STORAGE_ROOT, config.STORAGE_DEST_DIR)
+DERIVATIVE_CREATION_DIR = config.DERIVATIVE_CREATION_DIR
 
-DELIVERY_URL = CF.DELIVERY_URL
-DERIVATIVE_DELIVERY_URL = CF.DERIVATIVE_DELIVERY_URL
+DELIVERY_URL = config.DELIVERY_URL
+DERIVATIVE_DELIVERY_URL = config.DERIVATIVE_DELIVERY_URL
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
