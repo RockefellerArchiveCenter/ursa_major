@@ -131,9 +131,9 @@ CRON_CLASSES = [
     "bagdiscovery.cron.bagStore"
 ]
 
-SRC_DIR = os.path.join(config.STORAGE_ROOT, config.STORAGE_SRC_DIR)
-TMP_DIR = os.path.join(config.STORAGE_ROOT, config.STORAGE_TMP_DIR)
-DEST_DIR = os.path.join(config.STORAGE_ROOT, config.STORAGE_DEST_DIR)
+SRC_DIR = config.STORAGE_SRC_DIR
+TMP_DIR = config.STORAGE_TMP_DIR
+DEST_DIR = config.STORAGE_DEST_DIR
 DERIVATIVE_CREATION_DIR = config.DERIVATIVE_CREATION_DIR
 
 DELIVERY_URL = config.DELIVERY_URL
