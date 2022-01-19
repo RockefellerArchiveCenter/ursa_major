@@ -99,8 +99,8 @@ class BagTestCase(TestCase):
         response = BagDeliveryView.as_view()(request)
         self.assertEqual(response.status_code, 200, "Response error: {}".format(response.data))
         self.assertEqual(mock_post.call_count, 1)
-        bag = random.choice(Bag.objects.all())
-        mock_post.assert_any_call(
+        bag = Bag.objects.get(process_status=Bag.DELIVERED)
+        mock_post.assert_called_with(
             settings.DELIVERY_URL,
             headers={"Content-Type": "application/json"},
             json={
