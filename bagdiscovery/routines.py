@@ -103,20 +103,23 @@ class BagDiscovery:
 class BagDelivery:
 
     def run(self):
-        bag_ids = []
-        for bag in Bag.objects.filter(process_status=Bag.DISCOVERED):
+        bag = Bag.objects.filter(process_status=Bag.DISCOVERED).first()
+        if bag:
             try:
                 self.deliver_data(bag, settings.DELIVERY_URL)
                 if bag.origin == "digitization":
                     self.deliver_data(bag, settings.DERIVATIVE_DELIVERY_URL)
-                bag_ids.append(bag.bag_identifier)
                 bag.process_status = Bag.DELIVERED
                 bag.save()
+                message = "All bag data delivered."
             except Exception as e:
                 raise BagDiscoveryException(
                     "Error sending metadata to {}: {}".format(
                         settings.DELIVERY_URL, e))
-        return ("All bag data delivered.", bag_ids)
+        else:
+            message = "No bags to deliver."
+            bag = None
+        return (message, [bag.bag_identifier] if bag else None)
 
     def deliver_data(self, bag, url):
         try:

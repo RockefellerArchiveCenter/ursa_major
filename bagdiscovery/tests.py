@@ -72,11 +72,11 @@ class BagTestCase(TestCase):
     def test_deliver_bags(self, mock_post):
         """Ensures that BagDelivery routine runs without errors."""
         self.set_bag_status(Bag.DISCOVERED)
-        delivered = BagDelivery().run()
-        self.assertTrue(delivered)
-        for bag in Bag.objects.all():
-            self.assertEqual(bag.process_status, Bag.DELIVERED)
-        self.assertEqual(mock_post.call_count, len(Bag.objects.all()) + 1)
+        message, bag_id = BagDelivery().run()
+        self.assertEqual(message, "All bag data delivered.")
+        self.assertEqual(len(bag_id), 1)
+        self.assertTrue(Bag.objects.filter(process_status=Bag.DELIVERED).exists())
+        self.assertEqual(mock_post.call_count, 1)
 
     def test_cleanup_bags(self):
         """Ensures that CleanupRoutine runs without errors."""
@@ -98,9 +98,9 @@ class BagTestCase(TestCase):
         request = self.factory.post(reverse('bagdelivery'))
         response = BagDeliveryView.as_view()(request)
         self.assertEqual(response.status_code, 200, "Response error: {}".format(response.data))
-        self.assertEqual(mock_post.call_count, len(Bag.objects.all()) + 1)
-        bag = random.choice(Bag.objects.all())
-        mock_post.assert_any_call(
+        self.assertEqual(mock_post.call_count, 1)
+        bag = Bag.objects.get(process_status=Bag.DELIVERED)
+        mock_post.assert_called_with(
             settings.DELIVERY_URL,
             headers={"Content-Type": "application/json"},
             json={
