@@ -64,13 +64,12 @@ class BagTestCase(TestCase):
         self.set_bag_status(Bag.CREATED)
         discovered = BagDiscovery().run()
         self.assertTrue(discovered)
-        for bag in Bag.objects.all():
-            self.assertEqual(bag.process_status, Bag.DISCOVERED)
-        self.assertEqual(len(listdir(settings.DERIVATIVE_CREATION_DIR)), 1)
+        self.assertTrue(Bag.objects.filter(process_status=Bag.DISCOVERED).exists())
 
     @patch('bagdiscovery.routines.requests.post')
     def test_deliver_bags(self, mock_post):
         """Ensures that BagDelivery routine runs without errors."""
+        mock_post.reset_mock()
         self.set_bag_status(Bag.DISCOVERED)
         message, bag_id = BagDelivery().run()
         self.assertEqual(message, "All bag data delivered.")
@@ -94,6 +93,7 @@ class BagTestCase(TestCase):
     @patch('bagdiscovery.routines.requests.post')
     def test_deliver_view(self, mock_post):
         """Ensures BagDeliveryView executes BagDelivery routine."""
+        mock_post.reset_mock()
         self.set_bag_status(Bag.DISCOVERED)
         request = self.factory.post(reverse('bagdelivery'))
         response = BagDeliveryView.as_view()(request)
