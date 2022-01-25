@@ -23,16 +23,20 @@ class BaseRoutine(object):
     """Base routine which contains main run method."""
 
     def run(self):
-        bag = Bag.objects.filter(process_status=self.start_status).first()
-        if bag:
-            try:
-                message = self.process_bag(bag)
-            except Exception as e:
-                raise Exception(str(e), bag.bag_identifier)
-            bag.process_status = self.end_status
-            bag.save()
+        if not Bag.objects.filter(process_status=self.in_process_status).exists():
+            bag = Bag.objects.filter(process_status=self.start_status).first()
+            if bag:
+                try:
+                    message = self.process_bag(bag)
+                except Exception as e:
+                    raise Exception(str(e), bag.bag_identifier)
+                bag.process_status = self.end_status
+                bag.save()
+            else:
+                message = self.idle_message
         else:
-            message = self.idle_message
+            message = "Service currently running"
+            bag = None
         return (message, [bag.bag_identifier] if bag else None)
 
     def process_bag(self, bag):
@@ -42,6 +46,7 @@ class BaseRoutine(object):
 class BagDiscovery(BaseRoutine):
     """Discovers and stores bags, and delivers data to another service."""
     start_status = Bag.CREATED
+    in_process_status = Bag.DISCOVERING
     end_status = Bag.DISCOVERED
     idle_message = "No bags to discover."
 
@@ -118,6 +123,7 @@ class BagDiscovery(BaseRoutine):
 
 class BagDelivery(BaseRoutine):
     start_status = Bag.DISCOVERED
+    in_process_status = Bag.DELIVERING
     end_status = Bag.DELIVERED
     idle_message = "No bags to deliver."
 
