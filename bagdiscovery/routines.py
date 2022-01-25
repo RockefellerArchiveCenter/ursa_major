@@ -19,8 +19,31 @@ class CleanupException(Exception):
     pass
 
 
-class BagDiscovery:
+class BaseRoutine(object):
+    """Base routine which contains main run method."""
+
+    def run(self):
+        bag = Bag.objects.filter(process_status=self.start_status).first()
+        if bag:
+            try:
+                message = self.process_bag(bag)
+            except Exception as e:
+                raise Exception(str(e), bag.bag_identifier)
+            bag.process_status = self.end_status
+            bag.save()
+        else:
+            message = self.idle_message
+        return (message, [bag.bag_identifier] if bag else None)
+
+    def process_bag(self, bag):
+        raise NotImplementedError("You must implement a process_bag method")
+
+
+class BagDiscovery(BaseRoutine):
     """Discovers and stores bags, and delivers data to another service."""
+    start_status = Bag.CREATED
+    end_status = Bag.DISCOVERED
+    idle_message = "No bags to discover."
 
     def __init__(self):
         self.src_dir = settings.SRC_DIR
@@ -38,20 +61,13 @@ class BagDiscovery:
             if not os.access(dir, os.W_OK):
                 raise BagDiscoveryException("Directory not writable", dir)
 
-    def run(self):
-        bag_ids = []
-        for bag in Bag.objects.filter(process_status=Bag.CREATED):
-            self.bag_name = "{}.tar.gz".format(bag.bag_identifier)
-            if os.path.exists(os.path.join(self.src_dir, self.bag_name)):
-                self.unpack_bag()
-                self.save_bag_data(bag)
-                self.move_bag(bag)
-                bag_ids.append(bag.bag_identifier)
-                bag.process_status = bag.DISCOVERED
-                bag.save()
-            else:
-                continue
-        return ("All bags discovered.", bag_ids)
+    def process_bag(self, bag):
+        self.bag_name = "{}.tar.gz".format(bag.bag_identifier)
+        if os.path.exists(os.path.join(self.src_dir, self.bag_name)):
+            self.unpack_bag()
+            self.save_bag_data(bag)
+            self.move_bag(bag)
+        return "All bags discovered."
 
     def unpack_bag(self):
         extracted = tar_extract_all(
@@ -100,26 +116,16 @@ class BagDiscovery:
                 bag.bag_identifier)
 
 
-class BagDelivery:
+class BagDelivery(BaseRoutine):
+    start_status = Bag.DISCOVERED
+    end_status = Bag.DELIVERED
+    idle_message = "No bags to deliver."
 
-    def run(self):
-        bag = Bag.objects.filter(process_status=Bag.DISCOVERED).first()
-        if bag:
-            try:
-                self.deliver_data(bag, settings.DELIVERY_URL)
-                if bag.origin == "digitization":
-                    self.deliver_data(bag, settings.DERIVATIVE_DELIVERY_URL)
-                bag.process_status = Bag.DELIVERED
-                bag.save()
-                message = "All bag data delivered."
-            except Exception as e:
-                raise BagDiscoveryException(
-                    "Error sending metadata to {}: {}".format(
-                        settings.DELIVERY_URL, e))
-        else:
-            message = "No bags to deliver."
-            bag = None
-        return (message, [bag.bag_identifier] if bag else None)
+    def process_bag(self, bag):
+        self.deliver_data(bag, settings.DELIVERY_URL)
+        if bag.origin == "digitization":
+            self.deliver_data(bag, settings.DERIVATIVE_DELIVERY_URL)
+        return "All bag data delivered."
 
     def deliver_data(self, bag, url):
         try:
