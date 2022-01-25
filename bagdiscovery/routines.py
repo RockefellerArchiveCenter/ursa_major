@@ -72,7 +72,9 @@ class BagDiscovery(BaseRoutine):
             self.unpack_bag()
             self.save_bag_data(bag)
             self.move_bag(bag)
-        return "All bags discovered."
+            return "All bags discovered."
+        else:
+            raise Exception("Bag file does not exist.")
 
     def unpack_bag(self):
         extracted = tar_extract_all(
