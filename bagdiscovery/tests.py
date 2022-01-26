@@ -66,6 +66,13 @@ class BagTestCase(TestCase):
         self.assertTrue(discovered)
         self.assertTrue(Bag.objects.filter(process_status=Bag.DISCOVERED).exists())
 
+        shutil.rmtree(self.src_dir)
+        makedirs(self.src_dir)
+        self.set_bag_status(Bag.CREATED)
+        with self.assertRaises(Exception) as e:
+            BagDiscovery().run()
+        self.assertIn("Bag file does not exist.", str(e.exception))
+
     @patch('bagdiscovery.routines.requests.post')
     def test_deliver_bags(self, mock_post):
         """Ensures that BagDelivery routine runs without errors."""
