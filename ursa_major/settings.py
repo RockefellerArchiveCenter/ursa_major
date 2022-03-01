@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bagdiscovery',
     'rest_framework',
-    'health_check',
     'asterism',
 ]
 
