@@ -13,14 +13,15 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from asterism.views import PingView
+from django.contrib import admin
+from django.urls import include, re_path
+from rest_framework import routers
+from rest_framework.schemas import get_schema_view
+
 from bagdiscovery.views import (AccessionViewSet, BagDeliveryView,
                                 BagDiscoveryView, BagViewSet,
                                 CleanupRoutineView)
-from django.conf.urls import url
-from django.contrib import admin
-from django.urls import include
-from rest_framework import routers
-from rest_framework.schemas import get_schema_view
 
 router = routers.DefaultRouter()
 router.register(r'bags', BagViewSet, 'bag')
@@ -33,11 +34,11 @@ schema_view = get_schema_view(
 
 
 urlpatterns = [
-    url(r'^', include(router.urls)),
-    url('admin/', admin.site.urls),
-    url(r'^bagdiscovery/', BagDiscoveryView.as_view(), name="bagdiscovery"),
-    url(r'^bagdelivery/', BagDeliveryView.as_view(), name="bagdelivery"),
-    url(r'^cleanup/', CleanupRoutineView.as_view(), name="cleanup"),
-    url(r'^status/', include('health_check.api.urls')),
-    url(r'^schema/', schema_view, name='schema'),
+    re_path(r'^', include(router.urls)),
+    re_path('admin/', admin.site.urls),
+    re_path(r'^bagdiscovery/', BagDiscoveryView.as_view(), name="bagdiscovery"),
+    re_path(r'^bagdelivery/', BagDeliveryView.as_view(), name="bagdelivery"),
+    re_path(r'^cleanup/', CleanupRoutineView.as_view(), name="cleanup"),
+    re_path(r'^status/', PingView.as_view(), name="ping"),
+    re_path(r'^schema/', schema_view, name='schema'),
 ]

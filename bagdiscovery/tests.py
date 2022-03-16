@@ -8,6 +8,7 @@ from unittest.mock import patch
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APIRequestFactory
+
 from ursa_major import settings
 
 from .models import Accession, Bag
@@ -152,7 +153,7 @@ class BagTestCase(TestCase):
 
     def test_health_check(self):
         """Tests the health check endpoint."""
-        status = self.client.get(reverse('api_health_ping'))
+        status = self.client.get(reverse('ping'))
         self.assertEqual(status.status_code, 200, "Response error: {}".format(status))
 
     def tearDown(self):
