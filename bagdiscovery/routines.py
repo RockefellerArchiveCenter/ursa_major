@@ -107,7 +107,10 @@ class BagDiscovery(BaseRoutine):
                 self.bag_name)
             if bag.origin == "digitization":
                 derivative_path = os.path.join(settings.DERIVATIVE_CREATION_DIR, self.bag_name)
-                copy_file_or_dir(current_path, derivative_path)
+                if os.path.exists(derivative_path):
+                    raise BagDiscoveryException(f"Error copying bag: {derivative_path} exists", bag.bag_identifier)
+                else:
+                    copy_file_or_dir(current_path, derivative_path)
             new_path = os.path.join(self.dest_dir, self.bag_name)
             moved = move_file_or_dir(current_path, new_path)
             if moved:
