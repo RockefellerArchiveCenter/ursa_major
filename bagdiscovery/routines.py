@@ -172,6 +172,9 @@ class CleanupRoutine:
                 os.path.join(settings.DEST_DIR, self.identifier))
             if os.path.isfile(self.filepath):
                 os.remove(self.filepath)
+                bag = Bag.objects.get(bag_identifier=self.identifier)
+                if bag.origin != "aurora":
+                    os.remove("{}.tar.gz".format(os.path.join(settings.SRC_DIR, self.identifier)))
                 return ("Transfer removed.", self.identifier)
             return ("Transfer was not found.", self.identifier)
         except Exception as e:
