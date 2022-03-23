@@ -158,7 +158,8 @@ class BagDelivery(BaseRoutine):
 
 
 class CleanupRoutine:
-    """Removes files from the destination directory."""
+    """Removes files from the destination directory. Also removes files
+    from the source directory if a bag's origin is not Aurora."""
 
     def __init__(self, identifier):
         self.identifier = identifier
