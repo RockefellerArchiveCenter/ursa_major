@@ -107,7 +107,10 @@ class BagDiscovery(BaseRoutine):
                 self.bag_name)
             if bag.origin == "digitization":
                 derivative_path = os.path.join(settings.DERIVATIVE_CREATION_DIR, self.bag_name)
-                copy_file_or_dir(current_path, derivative_path)
+                if os.path.exists(derivative_path):
+                    raise BagDiscoveryException(f"Error copying bag: {derivative_path} exists", bag.bag_identifier)
+                else:
+                    copy_file_or_dir(current_path, derivative_path)
             new_path = os.path.join(self.dest_dir, self.bag_name)
             moved = move_file_or_dir(current_path, new_path)
             if moved:
@@ -155,7 +158,8 @@ class BagDelivery(BaseRoutine):
 
 
 class CleanupRoutine:
-    """Removes files from the destination directory."""
+    """Removes files from the destination directory. Also removes files
+    from the source directory if a bag's origin is not Aurora."""
 
     def __init__(self, identifier):
         self.identifier = identifier
@@ -169,6 +173,9 @@ class CleanupRoutine:
                 os.path.join(settings.DEST_DIR, self.identifier))
             if os.path.isfile(self.filepath):
                 os.remove(self.filepath)
+                bag = Bag.objects.get(bag_identifier=self.identifier)
+                if bag.origin != "aurora":
+                    os.remove("{}.tar.gz".format(os.path.join(settings.SRC_DIR, self.identifier)))
                 return ("Transfer removed.", self.identifier)
             return ("Transfer was not found.", self.identifier)
         except Exception as e:
