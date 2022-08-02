@@ -83,7 +83,9 @@ class BagTestCase(TestCase):
         self.assertEqual(message, "All bag data delivered.")
         self.assertEqual(len(bag_id), 1)
         self.assertTrue(Bag.objects.filter(process_status=Bag.DELIVERED).exists())
-        self.assertEqual(mock_post.call_count, 1)
+        bag = Bag.objects.get(bag_identifier=bag_id[0])
+        expected_calls = 2 if bag.origin == "digitization" else 1
+        self.assertEqual(mock_post.call_count, expected_calls)
 
     def test_cleanup_bags(self):
         """Ensures that CleanupRoutine runs without errors."""
