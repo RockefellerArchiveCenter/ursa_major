@@ -27,9 +27,13 @@ class BaseRoutine(object):
         if not Bag.objects.filter(process_status=self.in_process_status).exists():
             bag = Bag.objects.filter(process_status=self.start_status).first()
             if bag:
+                bag.process_status = self.in_process_status
+                bag.save()
                 try:
                     message = self.process_bag(bag)
                 except Exception as e:
+                    bag.process_status = self.start_status
+                    bag.save()
                     raise Exception(str(e), bag.bag_identifier)
                 bag.process_status = self.end_status
                 bag.save()
