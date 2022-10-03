@@ -12,7 +12,7 @@ attrs==22.1.0
     # via jsonschema
 bagit==1.8.1
     # via asterism
-certifi==2022.6.15
+certifi==2022.9.24
     # via requests
 charset-normalizer==2.1.1
     # via requests
@@ -21,13 +21,13 @@ django==4.0.7
     #   -r requirements.in
     #   asterism
     #   djangorestframework
-djangorestframework==3.13.1
+djangorestframework==3.14.0
     # via
     #   -r requirements.in
     #   asterism
-idna==3.3
+idna==3.4
     # via requests
-jsonschema==4.15.0
+jsonschema==4.16.0
     # via rac-schemas
 odin==1.8.1
     # via asterism
@@ -47,7 +47,7 @@ requests==2.28.1
     # via -r requirements.in
 six==1.16.0
     # via odin
-sqlparse==0.4.2
+sqlparse==0.4.3
     # via django
 uritemplate==4.1.1
     # via -r requirements.in
