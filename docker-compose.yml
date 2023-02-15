@@ -3,7 +3,7 @@ version: '3'
 services:
 
   ursa-major-db:
-    image: postgres:10.4
+    image: postgres:14.4
     volumes:
       - ursamajordb:/var/lib/postgresql/data/
 
