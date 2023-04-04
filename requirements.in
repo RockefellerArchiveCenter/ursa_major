@@ -1,7 +1,7 @@
-asterism~=0.8
+asterism~=1.0
 Django~=4.1
 djangorestframework~=3.13
-psycopg2-binary~=2.9
+psycopg2~=2.9
 PyYAML~=6.0
 rac_schemas~=0.30
 requests~=2.27
