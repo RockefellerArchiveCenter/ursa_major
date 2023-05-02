@@ -3,6 +3,7 @@ from os.path import join
 
 import rac_schema_validator
 
+
 def validate_bag_data(bag_data, schema_name):
     """Validates bag data against RAC schemas."""
     base_file = open(join('rac_schemas', 'schemas', 'base.json'), 'r')
