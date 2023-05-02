@@ -2,13 +2,14 @@ import json
 import os
 import shutil
 
-import rac_schemas
+import rac_schema_validator
 import requests
 from asterism.file_helpers import (copy_file_or_dir, move_file_or_dir,
                                    tar_extract_all)
 
 from ursa_major import settings
 
+from .helpers import validate_bag_data
 from .models import Bag
 
 
@@ -93,10 +94,10 @@ class BagDiscovery(BaseRoutine):
                     self.tmp_dir, bag.bag_identifier,
                     "{}.json".format(bag.bag_identifier))) as json_file:
                 bag_data = json.load(json_file)
-                rac_schemas.is_valid(bag_data, "{}_bag".format(bag_data.get("origin", "aurora")))
+                validate_bag_data(bag_data, "{}_bag.json".format(bag_data.get("origin", "aurora")))
                 bag.data = bag_data
                 bag.save()
-        except rac_schemas.exceptions.ValidationError as e:
+        except rac_schema_validator.exceptions.ValidationError as e:
             raise BagDiscoveryException(
                 "Invalid bag data: {}".format(e), bag.bag_identifier)
         except Exception as e:

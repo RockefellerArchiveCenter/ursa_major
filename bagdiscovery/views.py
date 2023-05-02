@@ -1,9 +1,10 @@
-import rac_schemas
+import rac_schema_validator
 from asterism.views import BaseServiceView, RoutineView, prepare_response
 from django.db import IntegrityError
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from .helpers import validate_bag_data
 from .models import Accession, Bag
 from .routines import BagDelivery, BagDiscovery, CleanupRoutine
 from .serializers import (AccessionListSerializer, AccessionSerializer,
@@ -35,7 +36,7 @@ class AccessionViewSet(ModelViewSet):
 
     def create(self, request):
         try:
-            rac_schemas.is_valid(request.data, "accession")
+            validate_bag_data(request.data, 'accession.json')
             accession = Accession.objects.create(
                 data=request.data
             )
@@ -49,7 +50,7 @@ class AccessionViewSet(ModelViewSet):
             return Response(prepare_response(
                 ("Accession stored and transfer objects created", transfer_ids)),
                 status=201)
-        except rac_schemas.exceptions.ValidationError as e:
+        except rac_schema_validator.exceptions.ValidationError as e:
             return Response(prepare_response(
                 "Invalid accession data: {}: {}".format(list(e.path), e.message)),
                 status=400)
