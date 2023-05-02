@@ -3,6 +3,6 @@ Django~=4.1
 djangorestframework~=3.13
 psycopg2~=2.9
 PyYAML~=6.0
-rac_schemas~=0.30
+rac-schema-validator~=0.1
 requests~=2.27
 uritemplate~=4.1
