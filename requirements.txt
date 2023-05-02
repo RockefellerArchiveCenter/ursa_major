@@ -6,7 +6,7 @@
 #
 asgiref==3.6.0
     # via django
-asterism==1.0.0
+asterism==1.1.0
     # via -r requirements.in
 attrs==23.1.0
     # via jsonschema
@@ -28,7 +28,7 @@ djangorestframework==3.14.0
 idna==3.4
     # via requests
 jsonschema==4.17.3
-    # via rac-schemas
+    # via rac-schema-validator
 psycopg2==2.9.6
     # via -r requirements.in
 pyrsistent==0.19.3
@@ -37,7 +37,7 @@ pytz==2023.3
     # via djangorestframework
 pyyaml==6.0
     # via -r requirements.in
-rac-schemas==0.30
+rac-schema-validator==0.1
     # via -r requirements.in
 requests==2.29.0
     # via -r requirements.in
