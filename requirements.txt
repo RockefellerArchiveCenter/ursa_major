@@ -4,7 +4,7 @@
 #
 #    pip-compile
 #
-asgiref==3.6.0
+asgiref==3.7.2
     # via django
 asterism==1.1.0
     # via -r requirements.in
@@ -12,11 +12,11 @@ attrs==23.1.0
     # via jsonschema
 bagit==1.8.1
     # via asterism
-certifi==2022.12.7
+certifi==2023.5.7
     # via requests
 charset-normalizer==3.1.0
     # via requests
-django==4.2
+django==4.2.1
     # via
     #   -r requirements.in
     #   asterism
@@ -39,11 +39,13 @@ pyyaml==6.0
     # via -r requirements.in
 rac-schema-validator==0.1
     # via -r requirements.in
-requests==2.29.0
+requests==2.31.0
     # via -r requirements.in
 sqlparse==0.4.4
     # via django
+typing-extensions==4.6.2
+    # via asgiref
 uritemplate==4.1.1
     # via -r requirements.in
-urllib3==1.26.15
+urllib3==2.0.2
     # via requests
