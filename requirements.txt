@@ -16,9 +16,9 @@ bagit==1.8.1
     # via asterism
 certifi==2023.7.22
     # via requests
-charset-normalizer==3.3.0
+charset-normalizer==3.3.1
     # via requests
-django==4.2.5
+django==4.2.6
     # via
     #   -r requirements.in
     #   asterism
@@ -29,11 +29,11 @@ djangorestframework==3.14.0
     #   asterism
 idna==3.4
     # via requests
-jsonschema==4.19.1
+jsonschema==4.19.2
     # via rac-schema-validator
 jsonschema-specifications==2023.7.1
     # via jsonschema
-psycopg2==2.9.8
+psycopg2==2.9.9
     # via -r requirements.in
 pytz==2023.3.post1
     # via djangorestframework
@@ -47,7 +47,7 @@ referencing==0.30.2
     #   jsonschema-specifications
 requests==2.31.0
     # via -r requirements.in
-rpds-py==0.10.3
+rpds-py==0.10.6
     # via
     #   jsonschema
     #   referencing
@@ -57,5 +57,5 @@ typing-extensions==4.8.0
     # via asgiref
 uritemplate==4.1.1
     # via -r requirements.in
-urllib3==2.0.5
+urllib3==2.0.7
     # via requests
