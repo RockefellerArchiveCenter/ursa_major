@@ -17,7 +17,6 @@ from asterism.views import PingView
 from django.contrib import admin
 from django.urls import include, re_path
 from rest_framework import routers
-from rest_framework.schemas import get_schema_view
 
 from bagdiscovery.views import (AccessionViewSet, BagDeliveryView,
                                 BagDiscoveryView, BagViewSet,
@@ -27,11 +26,6 @@ router = routers.DefaultRouter()
 router.register(r'bags', BagViewSet, 'bag')
 router.register(r'accessions', AccessionViewSet, 'accession')
 
-schema_view = get_schema_view(
-    title="Ursa Major API",
-    description="Endpoints for Ursa Major microservice application.",
-)
-
 
 urlpatterns = [
     re_path(r'^', include(router.urls)),
@@ -40,5 +34,4 @@ urlpatterns = [
     re_path(r'^bagdelivery/', BagDeliveryView.as_view(), name="bagdelivery"),
     re_path(r'^cleanup/', CleanupRoutineView.as_view(), name="cleanup"),
     re_path(r'^status/', PingView.as_view(), name="ping"),
-    re_path(r'^schema/', schema_view, name='schema'),
 ]
