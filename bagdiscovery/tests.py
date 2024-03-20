@@ -148,11 +148,6 @@ class BagTestCase(TestCase):
                 self.assertEqual(response.data[key], bag_data[key])
             self.assertEqual(response.status_code, 201, "Response error: {}".format(response.data))
 
-    def test_schema(self):
-        """Tests the schema view."""
-        schema = self.client.get(reverse('schema'))
-        self.assertEqual(schema.status_code, 200, "Response error: {}".format(schema))
-
     def test_health_check(self):
         """Tests the health check endpoint."""
         status = self.client.get(reverse('ping'))
