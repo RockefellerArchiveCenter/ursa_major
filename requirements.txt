@@ -37,7 +37,7 @@ psycopg2==2.9.10
     # via -r requirements.in
 pyyaml==6.0.2
     # via -r requirements.in
-rac-schema-validator==0.1
+rac-schema-validator==1.0
     # via -r requirements.in
 referencing==0.35.1
     # via
@@ -45,11 +45,11 @@ referencing==0.35.1
     #   jsonschema-specifications
 requests==2.32.3
     # via -r requirements.in
-rpds-py==0.20.1
+rpds-py==0.21.0
     # via
     #   jsonschema
     #   referencing
-sqlparse==0.5.1
+sqlparse==0.5.2
     # via django
 typing-extensions==4.12.2
     # via asgiref
