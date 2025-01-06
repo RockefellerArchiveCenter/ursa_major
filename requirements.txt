@@ -8,17 +8,17 @@ asgiref==3.8.1
     # via django
 asterism==1.1.0
     # via -r requirements.in
-attrs==24.2.0
+attrs==24.3.0
     # via
     #   jsonschema
     #   referencing
 bagit==1.8.1
     # via asterism
-certifi==2024.8.30
+certifi==2024.12.14
     # via requests
-charset-normalizer==3.4.0
+charset-normalizer==3.4.1
     # via requests
-django==4.2.16
+django==4.2.17
     # via
     #   -r requirements.in
     #   asterism
@@ -45,15 +45,15 @@ referencing==0.35.1
     #   jsonschema-specifications
 requests==2.32.3
     # via -r requirements.in
-rpds-py==0.21.0
+rpds-py==0.22.3
     # via
     #   jsonschema
     #   referencing
-sqlparse==0.5.2
+sqlparse==0.5.3
     # via django
 typing-extensions==4.12.2
     # via asgiref
 uritemplate==4.1.1
     # via -r requirements.in
-urllib3==2.2.3
+urllib3==2.3.0
     # via requests
