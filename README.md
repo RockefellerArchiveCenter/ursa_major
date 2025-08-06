@@ -1,3 +1,5 @@
+**This application has been marked as read-only and is no longer actively maintained or supported. Application functionality has been reimplemented in the [digital_ingest_discovery](https://github.com/RockefellerArchiveCenter/digital_ingest_discovery) application.**
+
 # ursa major
 
 A microservice to discover and store bags.
